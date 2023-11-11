@@ -16,14 +16,6 @@ CREATE TABLE Passenger (
     FOREIGN KEY (PassengerID) REFERENCES Person(PersonID)
 );
 
-CREATE TABLE Employee (
-    EmployeeID varchar(11) PRIMARY KEY,
-    Position char(64) NOT NULL,
-    HireDate date NOT NULL
-        CHECK (HireDate <= CURRENT_DATE),
-    FOREIGN KEY (EmployeeID) REFERENCES Person(PersonID)
-);
-
 create table Membership
 (
     PassengerID varchar(11),
@@ -31,6 +23,14 @@ create table Membership
     Discount integer not null default 0
         check (Discount >= 0 and Discount <= 100),
     foreign key (PassengerID) references Passenger(PassengerID)
+);
+
+CREATE TABLE Employee (
+    EmployeeID varchar(11) PRIMARY KEY,
+    Position char(64) NOT NULL,
+    HireDate date NOT NULL
+        CHECK (HireDate <= CURRENT_DATE),
+    FOREIGN KEY (EmployeeID) REFERENCES Person(PersonID)
 );
 
 create table Pilot
