@@ -1,46 +1,41 @@
-create table Passenger
-(
-    PersonID integer,
-    FirstName char(64) not null,
-    LastName char (64) not null,
-    DateOfBirthDay date not null
-        check (DateOfBirthDay > '1900-01-01' and DateOfBirthDay < current_date),
-    PhoneNumber integer not null,
-    Email char(128) not null
-        check (Email ~ '%_@__%.%_'),
-    MoneyBalance integer default 0,
-    IsBanned boolean default false,
-    primary key(PersonID)
+CREATE TABLE Person (
+    PersonID varchar(11) PRIMARY KEY,
+    FirstName char(64) NOT NULL,
+    LastName char(64) NOT NULL,
+    DateOfBirthDay date NOT NULL
+        CHECK (DateOfBirthDay > '1900-01-01' AND DateOfBirthDay < CURRENT_DATE),
+    PhoneNumber char(15),
+    Email varchar(128) NOT NULL
+        CHECK (Email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+CREATE TABLE Passenger (
+    PassengerID varchar(11) PRIMARY KEY,
+    MoneyBalance integer DEFAULT 0,
+    IsBanned boolean DEFAULT false,
+    FOREIGN KEY (PassengerID) REFERENCES Person(PersonID)
+);
+
+CREATE TABLE Employee (
+    EmployeeID varchar(11) PRIMARY KEY,
+    Position char(64) NOT NULL,
+    HireDate date NOT NULL
+        CHECK (HireDate <= CURRENT_DATE),
+    FOREIGN KEY (EmployeeID) REFERENCES Person(PersonID)
 );
 
 create table Membership
 (
-    PassengerID integer,
+    PassengerID varchar(11),
     ExpirationDate date not null,
     Discount integer not null default 0
         check (Discount >= 0 and Discount <= 100),
-    foreign key (PassengerID) references Passenger(PersonID)
-);
-
-create table Employee
-(
-    EmployeeID serial,
-    FirstName char(64) not null,
-    LastName char(64) not null,
-    DateOfBirthDay date not null
-        check (DateOfBirthDay > '1900-01-01' and DateOfBirthDay < current_date),
-    PhoneNumber char(15),
-    Email char(128) not null
-        check (Email ~ '%_@__%.%_'),
-    Position char(64) not null,
-    HireDate date not null
-	check (HireDate >= DateOfBirthDay + interval '18 years' and HireDate <= current_date),
-    primary key(EmployeeID)
+    foreign key (PassengerID) references Passenger(PassengerID)
 );
 
 create table Pilot
 (
-    EmployeeID integer,
+    EmployeeID varchar(11),
     LicenseNumber char(64),
     LicenseType char(64),
     IssueDate date,
@@ -83,8 +78,8 @@ create table Flight
     RouteID integer not null references Route(RouteID),
     AirplaneID integer not null references Airplane(AirplaneID),
     IsCancelled boolean default false,
-    PilotID integer references Pilot(EmployeeID),
-    CoPilotID integer references Pilot(EmployeeID),
+    PilotID varchar(11) references Pilot(EmployeeID),
+    CoPilotID varchar(11) references Pilot(EmployeeID),
     primary key(FlightID)
 );
 
@@ -93,7 +88,7 @@ create table Ticket
     TicketID serial,
     FlightID integer not null references Flight(FlightID),
     SeatID integer,
-    PersonID integer references Passenger(PersonID),
+    PersonID varchar(11) references Passenger(PassengerID),
     Price integer not null,
     primary key(TicketID)
 );
