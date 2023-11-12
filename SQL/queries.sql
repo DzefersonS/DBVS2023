@@ -139,3 +139,94 @@ VALUES ('departure_airport_id', 'destination_airport_id');
 -- Create a new airplane
 INSERT INTO Airplane (SeatCount)
 VALUES ('seat_count');
+
+
+
+-- Limits person to buying two tickets
+
+CREATE FUNCTION PassengerMaxTicketCount()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    IF (SELECT COUNT(*) FROM Ticket WHERE PersonID = NEW.PersonID) = 2
+    THEN RAISE EXCEPTION 'Passenger can buy maximum of two tickets';
+    END IF;
+
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER PassengerMaxTicketCountTrigger
+BEFORE INSERT
+ON Ticket
+FOR EACH ROW
+EXECUTE FUNCTION PassengerMaxTicketCount();
+
+-- Limits airplane to having maximum one flight per day
+
+CREATE FUNCTION AirplaneMaxFlightPerDay()
+RETURNS TRIGGER AS $$
+DECLARE
+    LastFlight timestamp;
+BEGIN
+    SELECT MAX(ArrivalTime) INTO LastFlight FROM Flight WHERE AirplaneID = NEW.AirplaneID;
+
+    IF LastFlight IS NOT NULL AND LastFlight > NEW.DepartureTime - INTERVAL '24 hours'
+    THEN RAISE EXCEPTION 'Airplane must pass 24 hour maintenance before next flight';
+    END IF;
+
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER AirplaneMaxFlightPerDayTrigger
+BEFORE INSERT
+ON Flight
+FOR EACH ROW
+EXECUTE FUNCTION AirplaneMaxFlightPerDay();
+
+-- Limits pilot to having maximum one flight per 12h
+
+CREATE FUNCTION PilotMaxFlightPerDay()
+RETURNS TRIGGER AS $$
+DECLARE
+    LastFlight timestamp;
+BEGIN
+    SELECT MAX(ArrivalTime) INTO LastFlight FROM Flight WHERE PilotID = NEW.PilotID;
+
+    IF LastFlight IS NOT NULL AND LastFlight > NEW.DepartureTime - INTERVAL '12 hours'
+    THEN RAISE EXCEPTION 'Pilot must rest for atleast 12 hours';
+    END IF;
+
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER PilotMaxFlightPerDayTrigger
+BEFORE INSERT
+ON Flight
+FOR EACH ROW
+EXECUTE FUNCTION PilotMaxFlightPerDay();
+
+-- Limits copilot to having maximum one flight per 12h
+
+CREATE FUNCTION CoPilotMaxFlightPerDay()
+RETURNS TRIGGER AS $$
+DECLARE
+    LastFlight timestamp;
+BEGIN
+    SELECT MAX(ArrivalTime) INTO LastFlight FROM Flight WHERE CoPilotID = NEW.CoPilotID;
+
+    IF LastFlight IS NOT NULL AND LastFlight > NEW.DepartureTime - INTERVAL '12 hours'
+    THEN RAISE EXCEPTION 'Co-pilot must rest for atleast 12 hours';
+    END IF;
+
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER CoPilotMaxFlightPerDayTrigger
+BEFORE INSERT
+ON Flight
+FOR EACH ROW
+EXECUTE FUNCTION CoPilotMaxFlightPerDay();
