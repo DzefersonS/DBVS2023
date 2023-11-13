@@ -326,3 +326,8 @@ ON Flight(AirplaneID);
 -- Views
 
 -- Flights that have not sold all tickets
+CREATE VIEW FlightNotSoldOut
+AS SELECT
+    F.FlightID, F.AirplaneID FROM Flight F
+    JOIN Airplane A ON F.AirplaneID = A.AirplaneID
+    WHERE (SELECT COUNT(*) FROM Ticket T WHERE T.FlightID = F.FlightID and T.PersonID IS NOT NULL) < A.SeatCount;
