@@ -148,7 +148,7 @@ CREATE FUNCTION PassengerMaxTicketCount()
 RETURNS TRIGGER AS $$
 BEGIN
 
-    IF (SELECT COUNT(*) FROM Ticket WHERE PersonID = NEW.PersonID) = 2
+    IF (SELECT COUNT(*) FROM Ticket WHERE PersonID = NEW.PersonID AND FlightID = NEW.FlightID) = 2
     THEN RAISE EXCEPTION 'Passenger can buy maximum of two tickets';
     END IF;
 
