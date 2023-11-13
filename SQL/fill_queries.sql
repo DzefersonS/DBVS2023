@@ -56,16 +56,7 @@ VALUES
 (3, 1);
 
 -- Inserting into flight
-INSERT INTO Flight (DepartureTime, ArrivalTime, RouteID, AirplaneID, PilotID, CoPilotID)
-VALUES 
-('2023-12-25 08:00:00', '2023-12-25 10:00:00', 1, 1, '00000000005', NULL),
-('2023-12-26 09:00:00', '2023-12-26 11:30:00', 2, 2, '00000000005', NULL),
-('2023-12-27 07:30:00', '2023-12-27 09:45:00', 3, 3, '00000000005', NULL);
+select create_flight('2023-12-25 08:00:00', '2023-12-25 10:00:00', 1, 1, '00000000005', NULL);
+select create_flight('2023-12-26 09:00:00', '2023-12-26 11:30:00', 2, 2, '00000000005', NULL);
+select create_flight('2023-12-27 07:30:00', '2023-12-27 09:45:00', 3, 3, '00000000005', NULL);
 
--- Inserting into Ticket
-INSERT INTO Ticket (FlightID, SeatID, PersonID, Price)
-VALUES 
-(1, 1, '00000000001', 300),
-(1, 2, '00000000002', 300),
-(2, 10, '00000000001', 250),
-(3, 15, '00000000003', 350);
