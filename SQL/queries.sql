@@ -281,3 +281,16 @@ BEFORE INSERT
 ON Flight
 FOR EACH ROW
 EXECUTE FUNCTION CoPilotMaxFlightPerDay();
+
+-- Indexes
+
+CREATE INDEX IndexPilotID
+ON Flight(PilotID);
+
+CREATE INDEX IndexCoPilotID
+ON Flight(CoPilotID);
+
+CREATE INDEX IndexAirplaneID
+ON Flight(AirplaneID);
+
+-- Views
