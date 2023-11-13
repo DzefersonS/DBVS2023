@@ -142,7 +142,7 @@ VALUES ('seat_count');
 
 
 
--- Limits person to buying two tickets
+-- Limits person to buying two tickets per flight
 
 CREATE FUNCTION PassengerMaxTicketCount()
 RETURNS TRIGGER AS $$
@@ -162,22 +162,61 @@ ON Ticket
 FOR EACH ROW
 EXECUTE FUNCTION PassengerMaxTicketCount();
 
+-- Checks if flights do not overlap
+
+CREATE FUNCTION FlightOverlap()
+RETURNS TRIGGER AS $$
+DECLARE
+    LastFlightArrival timestamp;
+    LastFlightDeparture timestamp;
+    cur CURSOR FOR SELECT ArrivalTime, DepartureTime FROM Flight;
+BEGIN
+    OPEN cur;
+
+    LOOP
+        FETCH cur INTO LastFlightArrival, LastFlightDeparture;
+        EXIT WHEN NOT FOUND;
+
+        IF (NEW.DepartureTime > LastFlightArrival AND NEW.DepartureTime < LastFlightDeparture) OR (NEW.ArrivalTime > LastFlightArrival AND NEW.ArrivalTime < LastFlightDeparture) 
+        THEN RAISE EXCEPTION 'Flights overlap';
+        END IF;
+
+    END LOOP;
+
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER FlightOverlapTrigger
+BEFORE INSERT
+ON Flight
+FOR EACH ROW
+EXECUTE FUNCTION FlightOverlap();
+
 -- Limits airplane to having maximum one flight per day
 
 CREATE FUNCTION AirplaneMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
-    LastFlight timestamp;
+    LastFlightArrival timestamp;
+    cur CURSOR FOR SELECT ArrivalTime FROM Flight WHERE AirplaneID = NEW.AirplaneID;
 BEGIN
-    SELECT MAX(ArrivalTime) INTO LastFlight FROM Flight WHERE AirplaneID = NEW.AirplaneID;
+    OPEN cur;
 
-    IF LastFlight IS NOT NULL AND LastFlight > NEW.DepartureTime - INTERVAL '24 hours'
-    THEN RAISE EXCEPTION 'Airplane must pass 24 hour maintenance before next flight';
-    END IF;
+    LOOP
+        FETCH cur INTO LastFlightArrival;
+        EXIT WHEN NOT FOUND;
+
+        IF LastFlightArrival > NEW.DepartureTime - INTERVAL '24 hours'
+        THEN RAISE EXCEPTION 'Airplane must pass 24 hour maintenance before next flight';
+        END IF;
+
+    END LOOP;
 
     RETURN NEW;
 END; $$
 LANGUAGE plpgsql;
+
 
 CREATE TRIGGER AirplaneMaxFlightPerDayTrigger
 BEFORE INSERT
@@ -190,13 +229,20 @@ EXECUTE FUNCTION AirplaneMaxFlightPerDay();
 CREATE FUNCTION PilotMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
-    LastFlight timestamp;
+    LastFlightArrival timestamp;
+    cur CURSOR FOR SELECT ArrivalTime FROM Flight WHERE PilotID = NEW.PilotID;
 BEGIN
-    SELECT MAX(ArrivalTime) INTO LastFlight FROM Flight WHERE PilotID = NEW.PilotID;
+    OPEN cur;
 
-    IF LastFlight IS NOT NULL AND LastFlight > NEW.DepartureTime - INTERVAL '12 hours'
-    THEN RAISE EXCEPTION 'Pilot must rest for atleast 12 hours';
-    END IF;
+    LOOP
+        FETCH cur INTO LastFlightArrival;
+        EXIT WHEN NOT FOUND;
+
+        IF LastFlightArrival > NEW.DepartureTime - INTERVAL '12 hours'
+        THEN RAISE EXCEPTION 'Pilot must rest for 12 hour next flight';
+        END IF;
+
+    END LOOP;
 
     RETURN NEW;
 END; $$
@@ -213,13 +259,20 @@ EXECUTE FUNCTION PilotMaxFlightPerDay();
 CREATE FUNCTION CoPilotMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
-    LastFlight timestamp;
+    LastFlightArrival timestamp;
+    cur CURSOR FOR SELECT ArrivalTime FROM Flight WHERE CoPilotID = NEW.CoPilotID;
 BEGIN
-    SELECT MAX(ArrivalTime) INTO LastFlight FROM Flight WHERE CoPilotID = NEW.CoPilotID;
+    OPEN cur;
 
-    IF LastFlight IS NOT NULL AND LastFlight > NEW.DepartureTime - INTERVAL '12 hours'
-    THEN RAISE EXCEPTION 'Co-pilot must rest for atleast 12 hours';
-    END IF;
+    LOOP
+        FETCH cur INTO LastFlightArrival;
+        EXIT WHEN NOT FOUND;
+
+        IF LastFlightArrival > NEW.DepartureTime - INTERVAL '12 hours'
+        THEN RAISE EXCEPTION 'Pilot must rest for 12 hour next flight';
+        END IF;
+
+    END LOOP;
 
     RETURN NEW;
 END; $$
