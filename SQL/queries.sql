@@ -125,6 +125,36 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Function to create new flight and creates tickets
+
+CREATE FUNCTION create_flight(
+    p_DepartureTime timestamp,
+    p_ArrivalTime timestamp,
+    p_RouteID integer,
+    p_AirplaneID integer,
+    p_PilotID varchar(11),
+    p_CoPilotID varchar(11)
+)
+RETURNS void AS $$
+DECLARE
+    p_FlightID integer;
+    count integer;
+    currentCount integer := 1;
+BEGIN
+    SELECT SeatCount INTO count FROM Airplane WHERE AirplaneID = p_AirplaneID;
+
+    INSERT INTO Flight (DepartureTime, ArrivalTime, RouteID, AirplaneID, PilotID, CoPilotID)
+    VALUES (p_DepartureTime, p_ArrivalTime, p_RouteID, p_AirplaneID, p_PilotID, p_CoPilotID)
+    RETURNING FlightID INTO p_FlightID;
+    
+   WHILE currentCount <= count LOOP
+        INSERT INTO Ticket (FlightID, SeatID, Price)
+        VALUES (p_FlightID, currentCount, 1);
+        currentCount := currentCount + 1;
+    END LOOP;
+END; $$
+LANGUAGE plpgsql;
+
 --/ MINOR QUERIES. NOT FUNCTIONS /--
 -- Create a new airport
 INSERT INTO Airport (AirportName, CityName)
@@ -294,3 +324,5 @@ CREATE INDEX IndexAirplaneID
 ON Flight(AirplaneID);
 
 -- Views
+
+-- Flights that have not sold all tickets
