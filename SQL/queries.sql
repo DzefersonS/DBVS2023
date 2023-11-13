@@ -125,8 +125,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
 --/ MINOR QUERIES. NOT FUNCTIONS /--
 -- Create a new airport
 INSERT INTO Airport (AirportName, CityName)
@@ -177,7 +175,7 @@ BEGIN
         FETCH cur INTO LastFlightArrival, LastFlightDeparture;
         EXIT WHEN NOT FOUND;
 
-        IF (NEW.DepartureTime > LastFlightArrival AND NEW.DepartureTime < LastFlightDeparture) OR (NEW.ArrivalTime > LastFlightArrival AND NEW.ArrivalTime < LastFlightDeparture) 
+        IF NOT (NEW.DepartureTime > LastFlightArrival OR NEW.ArrivalTime < LastFlightDeparture)
         THEN RAISE EXCEPTION 'Flights overlap';
         END IF;
 
