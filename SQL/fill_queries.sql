@@ -18,12 +18,6 @@ VALUES
 ('00000000002'),
 ('00000000003');
 
--- Inserting Memberships
-INSERT INTO Membership (PassengerID, ExpirationDate, Discount)
-VALUES 
-('00000000001', '2024-12-31', 10),
-('00000000002', '2023-11-30', 15);
-
 -- Inserting into Employee
 INSERT INTO Employee (EmployeeID, Position, HireDate)
 VALUES 
@@ -35,11 +29,11 @@ VALUES
 ('00000000005', 'LN123456', 'Commercial', '2008-08-15', '2028-08-15');
 
 -- Inserting into airplane
-INSERT INTO Airplane (SeatCount)
+INSERT INTO Airplane (SeatCount, RegistrationNumber)
 VALUES 
-(200),
-(150),
-(300);
+(200, 'a'),
+(150, 'b'),
+(300, 'c');
 
 -- Inserting into airport
 INSERT INTO Airport (AirportName, CityName)

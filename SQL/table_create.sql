@@ -13,16 +13,9 @@ CREATE TABLE Passenger (
     PassengerID varchar(11) PRIMARY KEY,
     MoneyBalance integer DEFAULT 0,
     IsBanned boolean DEFAULT false,
-    FOREIGN KEY (PassengerID) REFERENCES Person(PersonID)
-);
-
-create table Membership
-(
-    PassengerID varchar(11),
-    ExpirationDate date not null,
     Discount integer not null default 0
-        check (Discount >= 0 and Discount <= 100),
-    foreign key (PassengerID) references Passenger(PassengerID)
+        check (Discount >= 0 and Discount <= 100),,
+    FOREIGN KEY (PassengerID) REFERENCES Person(PersonID)
 );
 
 CREATE TABLE Employee (
@@ -37,10 +30,10 @@ create table Pilot
 (
     EmployeeID varchar(11),
     LicenseNumber char(64),
-    LicenseType char(64),
     IssueDate date,
+        check (IssueDate < ExpirationDate)
     ExpirationDate date
-	check (ExpirationDate >= current_date),
+	    check (ExpirationDate >= current_date),
   	primary key (EmployeeID),
     foreign key (EmployeeID) references Employee(EmployeeID)
 );
@@ -49,6 +42,7 @@ create table Airplane
 (
     AirplaneID serial,
     SeatCount integer not null,
+    RegistrationNumber char(64),
     primary key(AirplaneID)
 );
 
@@ -87,7 +81,7 @@ create table Ticket
 (
     TicketID serial,
     FlightID integer not null references Flight(FlightID),
-    SeatID integer,
+    SeatID integer not null,
     PersonID varchar(11) references Passenger(PassengerID),
     Price integer not null,
     primary key(TicketID)

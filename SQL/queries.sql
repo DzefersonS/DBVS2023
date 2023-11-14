@@ -68,7 +68,6 @@ CREATE FUNCTION register_pilot(
     p_Position char(64), 
     p_HireDate date,
     p_LicenseNumber char(64),
-    p_LicenseType char(64),
     p_IssueDate date,
     p_ExpirationDate date
 ) RETURNS void AS $$
@@ -78,8 +77,8 @@ BEGIN
 
     -- Then check if the person is already registered as a pilot
     IF NOT EXISTS (SELECT 1 FROM Pilot WHERE EmployeeID = p_PersonID) THEN
-        INSERT INTO Pilot (EmployeeID, LicenseNumber, LicenseType, IssueDate, ExpirationDate)
-        VALUES (p_PersonID, p_LicenseNumber, p_LicenseType, p_IssueDate, p_ExpirationDate);
+        INSERT INTO Pilot (EmployeeID, LicenseNumber, IssueDate, ExpirationDate)
+        VALUES (p_PersonID, p_LicenseNumber, p_IssueDate, p_ExpirationDate);
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -94,7 +93,7 @@ DECLARE
     cur CURSOR FOR SELECT TicketID, Price FROM Ticket WHERE PersonID = p_PassengerID;
 BEGIN
     -- Get the discount percentage from Membership, if it exists
-    SELECT Discount INTO discount FROM Membership WHERE PassengerID = p_PassengerID;
+    SELECT Discount INTO discount FROM Passenger WHERE PassengerID = p_PassengerID;
     IF NOT FOUND THEN
         discount := 0; -- If no membership, set discount to 0
     END IF;
@@ -117,9 +116,6 @@ BEGIN
 
     -- Close the cursor
     CLOSE cur;
-
-    -- Delete the membership record
-    DELETE FROM Membership WHERE PassengerID = p_PassengerID;
 
     -- Set IsBanned to true in Passenger table
     UPDATE Passenger SET IsBanned = true WHERE PassengerID = p_PassengerID;
@@ -198,7 +194,7 @@ RETURNS TRIGGER AS $$
 DECLARE
     LastFlightArrival timestamp;
     LastFlightDeparture timestamp;
-    cur CURSOR FOR SELECT ArrivalTime, DepartureTime FROM Flight;
+    cur CURSOR FOR SELECT ArrivalTime, DepartureTime FROM Flight WHERE NEW.AirplaneID = AirplaneID OR NEW.PilotID = PilotID;
 BEGIN
     OPEN cur;
 
@@ -324,12 +320,17 @@ ON Flight(CoPilotID);
 CREATE INDEX IndexAirplaneID
 ON Flight(AirplaneID);
 
+CREATE UNIQUE INDEX PilotLicenseNumber
+ON Pilot(LicenseNumber);
+
+CREATE UNIQUE INDEX AirplaneRegistrationNumber
+ON Airplane(RegistrationNumber);
+
 -- Views
 
 -- Flights that have not sold all tickets
 CREATE VIEW FlightNotSoldOut
-AS SELECT
-    F.FlightID, F.AirplaneID FROM Flight F
+AS SELECT F.FlightID, F.AirplaneID FROM Flight F
     JOIN Airplane A ON F.AirplaneID = A.AirplaneID
     WHERE (SELECT COUNT(*) FROM Ticket T WHERE T.FlightID = F.FlightID and T.PersonID IS NOT NULL) < A.SeatCount;
 	
@@ -352,7 +353,7 @@ BEGIN
 
         -- Get the discount from Membership, if it exists
         SELECT Discount INTO passengerDiscount 
-        FROM Membership 
+        FROM Passenger 
         WHERE PassengerID = ticketRecord.PersonID;
         
         -- If the passenger is not a member, set discount to 0
@@ -390,7 +391,7 @@ BEGIN
     SELECT MoneyBalance INTO passengerBalance FROM Passenger WHERE PassengerID = p_PassengerID;
 
     -- Get the discount from Membership, if it exists
-    SELECT Discount INTO passengerDiscount FROM Membership WHERE PassengerID = p_PassengerID;
+    SELECT Discount INTO passengerDiscount FROM Passenger WHERE PassengerID = p_PassengerID;
 
     -- If the passenger is not a member, set discount to 0
     IF passengerDiscount IS NULL THEN
@@ -414,74 +415,6 @@ BEGIN
     ELSE
         -- Raise an exception if the balance is insufficient
         RAISE EXCEPTION 'Insufficient balance to purchase the ticket.';
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-
--- Function to create membership
-CREATE FUNCTION create_membership(
-    p_PassengerID varchar(11),
-    p_ExpirationDate date,
-    p_Discount integer
-) RETURNS void AS $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM Passenger WHERE PassengerID = p_PassengerID) THEN
-        IF NOT EXISTS (SELECT 1 FROM Membership WHERE PassengerID = p_PassengerID) THEN
-            INSERT INTO Membership (PassengerID, ExpirationDate, Discount) 
-            VALUES (p_PassengerID, p_ExpirationDate, p_Discount);
-        ELSE
-            RAISE EXCEPTION 'Passenger already has a membership.';
-        END IF;
-    ELSE
-        RAISE EXCEPTION 'Passenger does not exist.';
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to update Membership
-CREATE FUNCTION update_membership(
-    p_PassengerID varchar(11),
-    p_NewExpirationDate date,
-    p_NewDiscount integer
-) RETURNS void AS $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM Membership WHERE PassengerID = p_PassengerID) THEN
-        UPDATE Membership 
-        SET ExpirationDate = p_NewExpirationDate, Discount = p_NewDiscount
-        WHERE PassengerID = p_PassengerID;
-    ELSE
-        RAISE EXCEPTION 'Membership does not exist.';
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to renew membership
-CREATE FUNCTION renew_membership(
-    p_PassengerID varchar(11),
-    p_ExtensionPeriod interval
-) RETURNS void AS $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM Membership WHERE PassengerID = p_PassengerID) THEN
-        UPDATE Membership 
-        SET ExpirationDate = ExpirationDate + p_ExtensionPeriod
-        WHERE PassengerID = p_PassengerID;
-    ELSE
-        RAISE EXCEPTION 'Membership does not exist.';
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to delete membership
-CREATE FUNCTION delete_membership(
-    p_PassengerID varchar(11)
-) RETURNS void AS $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM Membership WHERE PassengerID = p_PassengerID) THEN
-        DELETE FROM Membership 
-        WHERE PassengerID = p_PassengerID;
-    ELSE
-        RAISE EXCEPTION 'Membership does not exist.';
     END IF;
 END;
 $$ LANGUAGE plpgsql;
