@@ -14,7 +14,7 @@ CREATE TABLE Passenger (
     MoneyBalance integer DEFAULT 0,
     IsBanned boolean DEFAULT false,
     Discount integer not null default 0
-        check (Discount >= 0 and Discount <= 100),,
+        check (Discount >= 0 and Discount <= 100),
     FOREIGN KEY (PassengerID) REFERENCES Person(PersonID)
 );
 
@@ -30,8 +30,8 @@ create table Pilot
 (
     EmployeeID varchar(11),
     LicenseNumber char(64),
-    IssueDate date,
-        check (IssueDate < ExpirationDate)
+    IssueDate date
+        check (IssueDate < ExpirationDate),
     ExpirationDate date
 	    check (ExpirationDate >= current_date),
   	primary key (EmployeeID),
