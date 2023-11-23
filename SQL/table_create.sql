@@ -1,39 +1,42 @@
 CREATE TABLE Person (
-    PersonID varchar(11) PRIMARY KEY,
+    PersonID varchar(11),
     FirstName char(64) NOT NULL,
     LastName char(64) NOT NULL,
     DateOfBirthDay date NOT NULL
         CHECK (DateOfBirthDay > '1900-01-01' AND DateOfBirthDay < CURRENT_DATE),
     PhoneNumber char(15),
     Email varchar(128) NOT NULL
-        CHECK (Email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+        CHECK (Email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    primary key(PersonID)
 );
 
 CREATE TABLE Passenger (
-    PassengerID varchar(11) PRIMARY KEY,
-    MoneyBalance integer DEFAULT 0,
-    IsBanned boolean DEFAULT false,
+    PassengerID varchar(11),
+    MoneyBalance integer not null DEFAULT 0,
+    IsBanned boolean not null DEFAULT false,
     Discount integer not null default 0
         check (Discount >= 0 and Discount <= 100),
-    FOREIGN KEY (PassengerID) REFERENCES Person(PersonID)
+    primary key(PassengerID),
+    foreign key (PassengerID) references Person(PersonID)
 );
 
 CREATE TABLE Employee (
-    EmployeeID varchar(11) PRIMARY KEY,
+    EmployeeID varchar(11),
     Position char(64) NOT NULL,
     HireDate date NOT NULL
         CHECK (HireDate <= CURRENT_DATE),
-    FOREIGN KEY (EmployeeID) REFERENCES Person(PersonID)
+    primary key (EmployeeID),
+    foreign key (EmployeeID) references Person(PersonID)
 );
 
 create table Pilot
 (
     EmployeeID varchar(11),
-    LicenseNumber char(64),
-    IssueDate date
+    LicenseNumber char(64) not null,
+    IssueDate date not null 
         check (IssueDate < ExpirationDate),
-    ExpirationDate date
-	    check (ExpirationDate >= current_date),
+    ExpirationDate date not null 
+ 	    check (ExpirationDate >= current_date),
   	primary key (EmployeeID),
     foreign key (EmployeeID) references Employee(EmployeeID)
 );
@@ -42,7 +45,7 @@ create table Airplane
 (
     AirplaneID serial,
     SeatCount integer not null,
-    RegistrationNumber char(64),
+    RegistrationNumber char(64) not null,
     primary key(AirplaneID)
 );
 
@@ -57,9 +60,11 @@ create table Airport
 create table Route
 (
     RouteID serial,
-    DepartureAirport integer not null references Airport(AirportID),
-    DestinationAirport integer not null references Airport(AirportID),
-    primary key(RouteID)
+    DepartureAirport integer not null,
+    DestinationAirport integer not null,
+    primary key(RouteID),
+    foreign key(DepartureAirport) references Airport(AirportID),
+    foreign key(DestinationAirport) references Airport(AirportID)
 );
 
 create table Flight
@@ -69,20 +74,26 @@ create table Flight
         check (DepartureTime > current_timestamp),
     ArrivalTime timestamp not null
         check (ArrivalTime > DepartureTime),
-    RouteID integer not null references Route(RouteID),
-    AirplaneID integer not null references Airplane(AirplaneID),
-    IsCancelled boolean default false,
-    PilotID varchar(11) references Pilot(EmployeeID),
-    CoPilotID varchar(11) references Pilot(EmployeeID),
-    primary key(FlightID)
+    RouteID integer not null,
+    AirplaneID integer not null,
+    IsCancelled boolean default false not null,
+    PilotID varchar(11) not null,
+    CoPilotID varchar(11) not null,
+    primary key(FlightID),
+    foreign key(AirplaneID) references Airplane(AirplaneID),
+    foreign key(RouteID) references Route(RouteID),
+    foreign key(PilotID) references Pilot(EmployeeID),
+    foreign key(CoPilotID) references Pilot(EmployeeID)
 );
 
 create table Ticket
 (
     TicketID serial,
-    FlightID integer not null references Flight(FlightID),
+    FlightID integer not null,
     SeatID integer not null,
-    PersonID varchar(11) references Passenger(PassengerID),
+    PersonID varchar(11),
     Price integer not null,
-    primary key(TicketID)
+    primary key(TicketID),
+    foreign key(FlightID) references Flight(FlightID),
+    foreign key(PersonID) references Passenger(PassengerID)
 );
