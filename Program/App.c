@@ -14,25 +14,33 @@
 #include <fcntl.h>
 
 /* exec sql begin declare section */
-  
-    
-  
+   
+ 
+ 
+ 
+ 
 
 #line 9 "App.pgc"
- int result ;
- 
-#line 10 "App.pgc"
  char sql_user [ 100 ] = "gaza8879" ;
  
-#line 11 "App.pgc"
+#line 10 "App.pgc"
  char sql_password [ 100 ] ;
-/* exec sql end declare section */
+ 
+#line 11 "App.pgc"
+ char function_params [ 20 ] [ 100 ] ;
+ 
 #line 12 "App.pgc"
+ char dob [ 11 ] ;
+ 
+#line 13 "App.pgc"
+ int function_int_params [ 10 ] ;
+/* exec sql end declare section */
+#line 14 "App.pgc"
 
 
-void WaitForAuthentication();
-void PerformMainLoop();
-void RepaintStartingMenuText();
+void waitForLogin();
+void doMainMenuLoop();
+void repaintStartMenu();
 void PerformCreateMenuLoop();
 void PerformUpdateMenuLoop();
 void PerformDeleteMenuLoop();
@@ -41,19 +49,18 @@ int linux_kbhit();
 
 int main()
 {
-	WaitForAuthentication();
-	PerformMainLoop();
+	waitForLogin();
+	doMainMenuLoop();
 	
   	{ ECPGdisconnect(__LINE__, "CURRENT");}
-#line 28 "App.pgc"
+#line 30 "App.pgc"
 
-  	return 0 ;
+  	return 0;
 }
 
-void WaitForAuthentication()
+void waitForLogin()
 {
     struct termios oldt, newt;
-    char password[100];
 
     // Get old settings
     tcgetattr(STDIN_FILENO, &oldt);
@@ -68,20 +75,14 @@ void WaitForAuthentication()
 	for(;;)
 	{
 		printf("Enter password: ");
-		scanf("%99s", password);
-
-		strncpy(sql_password, password, sizeof(sql_password));
-		sql_password[sizeof(sql_password) - 1] = "\0";
+		scanf("%99s", sql_password);
 
 		{ ECPGconnect(__LINE__, 0, "studentu@pgsql3.mif" , sql_user , sql_password , NULL, 0); }
-#line 55 "App.pgc"
+#line 53 "App.pgc"
 
 		
 		if(SQLCODE == 0)
 		{
-			system("clear");
-			printf("Successfully connected with SQLCODE %ld!\n", SQLCODE);
-			memset(password, 0, sizeof(password));
 			memset(sql_password, 0, sizeof(sql_password));
 			break;
 		}
@@ -95,9 +96,9 @@ void WaitForAuthentication()
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
-void PerformMainLoop()
+void doMainMenuLoop()
 {
-	RepaintStartingMenuText();
+	repaintStartMenu();
 	
 	for(;;)
 	{
@@ -109,18 +110,18 @@ void PerformMainLoop()
 			{
 				case '1':
 					PerformCreateMenuLoop();
-					RepaintStartingMenuText();
+					repaintStartMenu();
 					break;
 				case '2':
-					RepaintStartingMenuText();
+					repaintStartMenu();
 					break;
 				case '3':
 					PerformUpdateMenuLoop();
-					RepaintStartingMenuText();
+					repaintStartMenu();
 					break;
 				case '4':
 					PerformDeleteMenuLoop();
-					RepaintStartingMenuText();
+					repaintStartMenu();
 					break;
 				case '0':
 					return;
@@ -129,7 +130,7 @@ void PerformMainLoop()
 	}
 }
 
-void RepaintStartingMenuText()
+void repaintStartMenu()
 {
 	system("clear");
 	printf("Welcome to the airport management system! What would you like to do today?\n");
@@ -142,6 +143,30 @@ void RepaintStartingMenuText()
 
 void PerformCreateMenuLoop()
 {
+	repaintCreateMenu();
+	for(;;)
+	{
+		if(linux_kbhit())
+		{
+			char keyPressed = linux_getch();
+
+			switch(keyPressed)
+			{
+				case '1':
+					AddNewPassenger();
+					repaintCreateMenu();
+					break;
+				case '0':
+					return;
+				default:
+					continue;
+			}
+		}
+	}
+}
+
+void repaintCreateMenu()
+{
 	system("clear");
 	printf("Choose an option:\n");
 	printf("1 - Add a new passenger\n");
@@ -153,21 +178,71 @@ void PerformCreateMenuLoop()
 	printf("7 - Add a new route\n");
 	printf("8 - Purchase tickets\n");
 	printf("0 - Return to main menu\n");
+}
 
-	for(;;)
+void AddNewPassenger()
+{
+	system("clear");
+	printf("Enter the person's ID: ");
+	memset(function_params[0], '\0', sizeof(function_params[0]));
+	scanf("%12s", function_params[0]);
+
+	printf("Enter the person's first name: ");
+	memset(function_params[1], '\0', sizeof(function_params[1]));
+	scanf("%64s", function_params[1]);
+	printf("Enter the person's last name: ");
+	memset(function_params[2], '\0', sizeof(function_params[2]));
+	scanf("%64s", function_params[2]);
+
+	printf("Enter the person's date of birth: ");
+	scanf("%11s", dob);
+
+	printf("Enter the person's phone number: ");
+	memset(function_params[4], '\0', sizeof(function_params[4]));
+	scanf("%16s", function_params[4]);
+
+	printf("Enter the person's email: ");
+	memset(function_params[5], '\0', sizeof(function_params[5]));
+	scanf("%99s", function_params[5]);
+
+	printf("Enter the person's money balance: ");
+	scanf("%d", &function_int_params[0]);
+
+	{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select register_person ( $1  , $2  , $3  , $4  , $5  , $6  )", 
+	ECPGt_char,(function_params[0]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_char,(function_params[1]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_char,(function_params[2]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_char,(dob),(long)11,(long)1,(11)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_char,(function_params[4]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_char,(function_params[5]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
+#line 188 "App.pgc"
+
+
+	if(SQLCODE != 0)
 	{
-		if(linux_kbhit())
+		for(int i = 0; i < 11; ++i)
 		{
-			char keyPressed = linux_getch();
-
-			switch(keyPressed)
-			{
-				case '0':
-					return;
-				default:
-					continue;
-			}
+			printf("%c", dob[i]);
 		}
+		printf("Passenger insuccessfully added. SQLCODE = %d", SQLCODE);
+		    fprintf(stderr, "==== sqlca ====\n");
+    fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+    fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+    fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+    fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+                                                          sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+    fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+                                                          sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+                                                          sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+    fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+    fprintf(stderr, "===============\n");
+		exit(-1);
 	}
 }
 
