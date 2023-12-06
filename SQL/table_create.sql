@@ -11,40 +11,41 @@ CREATE TABLE Person (
 );
 
 CREATE TABLE Passenger (
-    PassengerID varchar(11),
+    PersonID varchar(11),
     MoneyBalance integer not null DEFAULT 0,
     IsBanned boolean not null DEFAULT false,
     Discount integer not null default 0
         check (Discount >= 0 and Discount <= 100),
-    primary key(PassengerID),
-    foreign key (PassengerID) references Person(PersonID)
+    primary key(PersonID),
+    foreign key (PersonID) references Person(PersonID)
 );
 
 CREATE TABLE Employee (
-    EmployeeID varchar(11),
+    PersonID varchar(11),
     Position char(64) NOT NULL,
     HireDate date NOT NULL
         CHECK (HireDate <= CURRENT_DATE),
-    primary key (EmployeeID),
-    foreign key (EmployeeID) references Person(PersonID)
+    primary key (PersonID),
+    foreign key (PersonID) references Person(PersonID)
 );
 
 create table Pilot
 (
-    EmployeeID varchar(11),
+    PersonID varchar(11),
     LicenseNumber char(64) not null,
     IssueDate date not null 
         check (IssueDate < ExpirationDate),
     ExpirationDate date not null 
  	    check (ExpirationDate >= current_date),
-  	primary key (EmployeeID),
-    foreign key (EmployeeID) references Employee(EmployeeID)
+  	primary key (PersonID),
+    foreign key (PersonID) references Employee(PersonID)
 );
 
 create table Airplane
 (
     AirplaneID serial,
     SeatCount integer not null,
+    TicketPrice integer not null,
     RegistrationNumber char(64) not null,
     primary key(AirplaneID)
 );
@@ -78,12 +79,12 @@ create table Flight
     AirplaneID integer not null,
     IsCancelled boolean default false not null,
     PilotID varchar(11) not null,
-    CoPilotID varchar(11) not null,
+    CoPilotID varchar(11),
     primary key(FlightID),
     foreign key(AirplaneID) references Airplane(AirplaneID),
     foreign key(RouteID) references Route(RouteID),
-    foreign key(PilotID) references Pilot(EmployeeID),
-    foreign key(CoPilotID) references Pilot(EmployeeID)
+    foreign key(PilotID) references Pilot(PersonID),
+    foreign key(CoPilotID) references Pilot(PersonID)
 );
 
 create table Ticket
@@ -95,5 +96,5 @@ create table Ticket
     Price integer not null,
     primary key(TicketID),
     foreign key(FlightID) references Flight(FlightID),
-    foreign key(PersonID) references Passenger(PassengerID)
+    foreign key(PersonID) references Passenger(PersonID)
 );

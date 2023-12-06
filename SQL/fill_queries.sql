@@ -12,28 +12,28 @@ VALUES
 ('00000000005', 'Michael', 'Brown', '1975-07-11', '1234567894', 'michael.brown@email.com');
 
 -- Inserting into Passenger
-INSERT INTO Passenger (PassengerID)
+INSERT INTO Passenger (PersonID)
 VALUES 
 ('00000000001'),
 ('00000000002'),
 ('00000000003');
 
 -- Inserting into Employee
-INSERT INTO Employee (EmployeeID, Position, HireDate)
+INSERT INTO Employee (PersonID, Position, HireDate)
 VALUES 
 ('00000000004', 'Flight Attendant', '2010-05-10'),
 ('00000000005', 'Pilot', '2008-08-15');
 
-INSERT INTO Pilot (EmployeeID, LicenseNumber, LicenseType, IssueDate, ExpirationDate)
+INSERT INTO Pilot (PersonID, LicenseNumber, IssueDate, ExpirationDate)
 VALUES 
-('00000000005', 'LN123456', 'Commercial', '2008-08-15', '2028-08-15');
+('00000000005', 'LN123456', '2008-08-15', '2028-08-15');
 
 -- Inserting into airplane
-INSERT INTO Airplane (SeatCount, RegistrationNumber)
+INSERT INTO Airplane (SeatCount, RegistrationNumber, TicketPrice)
 VALUES 
-(200, 'a'),
-(150, 'b'),
-(300, 'c');
+(200, 'a', 1),
+(150, 'b', 2),
+(300, 'c', 3);
 
 -- Inserting into airport
 INSERT INTO Airport (AirportName, CityName)
