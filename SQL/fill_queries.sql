@@ -1,56 +1,37 @@
 -- Inserting Passengers
-INSERT INTO Person (PersonID, FirstName, LastName, DateOfBirthDay, PhoneNumber, Email)
-VALUES 
-('00000000001', 'John', 'Doe', '1985-06-15', '1234567890', 'john.doe@email.com'),
-('00000000002', 'Jane', 'Smith', '1990-03-22', '1234567891', 'jane.smith@email.com'),
-('00000000003', 'Alice', 'Johnson', '1978-12-05', '1234567892', 'alice.johnson@email.com');
+SELECT register_passenger('P2001', 'Michael', 'Brown', '1970-03-03', '123-456-7892', 'michael.brown@email.com', 5000);
+SELECT register_passenger('P2002', 'Emily', 'Johnson', '1980-04-04', '123-456-7893', 'emily.johnson@email.com', 3000);
+SELECT register_passenger('P2003', 'Grace', 'Lee', '1978-11-09', '123-456-7898', 'grace.lee@email.com', 10000);
+SELECT register_passenger('P2004', 'Lucas', 'Garcia', '1983-02-17', '123-456-7899', 'lucas.garcia@email.com', 1500);
+
 
 -- Inserting Employees
-INSERT INTO Person (PersonID, FirstName, LastName, DateOfBirthDay, PhoneNumber, Email)
-VALUES 
-('00000000004', 'Emily', 'Taylor', '1980-01-20', '1234567893', 'emily.taylor@email.com'),
-('00000000005', 'Michael', 'Brown', '1975-07-11', '1234567894', 'michael.brown@email.com');
-
--- Inserting into Passenger
-INSERT INTO Passenger (PersonID)
-VALUES 
-('00000000001'),
-('00000000002'),
-('00000000003');
-
--- Inserting into Employee
-INSERT INTO Employee (PersonID, Position, HireDate)
-VALUES 
-('00000000004', 'Flight Attendant', '2010-05-10'),
-('00000000005', 'Pilot', '2008-08-15');
-
-INSERT INTO Pilot (PersonID, LicenseNumber, IssueDate, ExpirationDate)
-VALUES 
-('00000000005', 'LN123456', '2008-08-15', '2028-08-15');
+SELECT register_employee('E3001', 'David', 'Wilson', '1975-05-05', '123-456-7894', 'david.wilson@email.com', 'Manager', '2000-05-05');
+SELECT register_pilot('E4001', 'Sarah', 'Miller', '1982-06-06', '123-456-7895', 'sarah.miller@email.com', 'Pilot', '2005-06-06', 'PLT100', '2005-06-06', '2025-06-06');
+SELECT register_employee('E3002', 'Emma', 'Martinez', '1986-09-05', '123-456-7800', 'emma.martinez@email.com', 'Crew', '2010-09-05');
+SELECT register_pilot('E4002', 'Noah', 'Rodriguez', '1979-12-12', '123-456-7801', 'noah.rodriguez@email.com', 'Co-Pilot', '2008-12-12', 'PLT101', '2008-12-12', '2028-12-12');
 
 -- Inserting into airplane
-INSERT INTO Airplane (SeatCount, RegistrationNumber, TicketPrice)
-VALUES 
-(200, 'a', 1),
-(150, 'b', 2),
-(300, 'c', 3);
+SELECT add_airplane(200);
+SELECT add_airplane(150);
+SELECT add_airplane(300);
+SELECT add_airplane(100);
 
 -- Inserting into airport
-INSERT INTO Airport (AirportName, CityName)
-VALUES 
-('Gateway International', 'Springfield'),
-('Harbor Field', 'Riverdale'),
-('Summit Airport', 'Hilltown');
+SELECT add_airport('Heathrow', 'London');
+SELECT add_airport('JFK', 'New York');
+SELECT add_airport('Charles de Gaulle', 'Paris');
+SELECT add_airport('Changi', 'Singapore');
 
 -- Inserting into route
-INSERT INTO Route (DepartureAirport, DestinationAirport)
-VALUES 
-(1, 2),
-(2, 3),
-(3, 1);
+SELECT create_route(1, 2);
+SELECT create_route(2, 1);
+SELECT create_route(3, 4);
+SELECT create_route(4, 3);
 
 -- Inserting into flight
-select create_flight('2023-12-25 08:00:00', '2023-12-25 10:00:00', 1, 1, '00000000005', NULL);
-select create_flight('2023-12-26 09:00:00', '2023-12-26 11:30:00', 2, 2, '00000000005', NULL);
-select create_flight('2023-12-27 07:30:00', '2023-12-27 09:45:00', 3, 3, '00000000005', NULL);
+SELECT create_flight('2023-01-01 08:00:00', '2023-01-01 12:00:00', 1, 1, 'E4001', 'E4002');
 
+-- Buying a few tickets
+SELECT purchase_ticket('P2001', 1);
+SELECT purchase_ticket('P2002', 2);
