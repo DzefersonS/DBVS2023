@@ -1,5 +1,4 @@
 -- Limits person to buying two tickets per flight
-
 CREATE FUNCTION PassengerMaxTicketCount()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -19,7 +18,6 @@ FOR EACH ROW
 EXECUTE FUNCTION PassengerMaxTicketCount();
 
 -- Checks if flights do not overlap
-
 CREATE FUNCTION FlightOverlap()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -50,7 +48,6 @@ FOR EACH ROW
 EXECUTE FUNCTION FlightOverlap();
 
 -- Limits airplane to having maximum one flight per day
-
 CREATE FUNCTION AirplaneMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -81,7 +78,6 @@ FOR EACH ROW
 EXECUTE FUNCTION AirplaneMaxFlightPerDay();
 
 -- Limits pilot to having maximum one flight per 12h
-
 CREATE FUNCTION PilotMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -111,7 +107,6 @@ FOR EACH ROW
 EXECUTE FUNCTION PilotMaxFlightPerDay();
 
 -- Limits copilot to having maximum one flight per 12h
-
 CREATE FUNCTION CoPilotMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE

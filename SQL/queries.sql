@@ -123,7 +123,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function to create new flight and creates tickets
-
 CREATE FUNCTION create_flight(
     p_DepartureTime timestamp,
     p_ArrivalTime timestamp,
@@ -152,11 +151,7 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
---/ MINOR QUERIES. NOT FUNCTIONS /--
--- Create a new airport
-
 -- Function that cancels a flight and refunds all tickets
-
 CREATE FUNCTION cancel_flight(p_FlightID integer) 
 RETURNS void AS $$
 DECLARE
@@ -193,7 +188,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function for purchasing a ticket
-
 CREATE FUNCTION purchase_ticket(
     p_PassengerID varchar(11), 
     p_TicketID integer
