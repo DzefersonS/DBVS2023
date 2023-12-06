@@ -167,9 +167,9 @@ BEGIN
     UPDATE Flight SET IsCancelled = true WHERE FlightID = p_FlightID;
 
     -- Find all tickets and calculate refunds
-    FOR ticketRecord IN SELECT T.TicketID, T.PersonID, T.Price 
-                        FROM Ticket T 
-                        WHERE T.FlightID = p_FlightID LOOP
+    FOR ticketRecord IN SELECT t.TicketID, t.PersonID, t.Price 
+                        FROM Ticket t
+                        WHERE t.FlightID = p_FlightID LOOP
 
         -- Get the discount from Membership, if it exists
         SELECT Discount INTO passengerDiscount 

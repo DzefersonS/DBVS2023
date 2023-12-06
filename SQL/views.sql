@@ -1,7 +1,7 @@
 CREATE VIEW FlightsNotSoldOut
-AS SELECT F.FlightID, F.AirplaneID FROM Flight F
-    JOIN Airplane A ON F.AirplaneID = A.AirplaneID
-    WHERE (SELECT COUNT(*) FROM Ticket T WHERE T.FlightID = F.FlightID and T.PersonID IS NOT NULL) < A.SeatCount;
+AS SELECT f.FlightID, f.AirplaneID FROM Flight f
+    JOIN Airplane a ON f.AirplaneID = a.AirplaneID
+    WHERE (SELECT COUNT(*) FROM Ticket t WHERE t.FlightID = f.FlightID and t.PersonID IS NOT NULL) < a.SeatCount;
 
 CREATE VIEW BannedPassengers AS
 SELECT *
