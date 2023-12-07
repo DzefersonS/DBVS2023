@@ -86,7 +86,7 @@ DECLARE
 BEGIN
     SELECT Discount INTO discount FROM Passenger WHERE PersonID = p_PersonID;
     IF NOT FOUND THEN
-        discount := 0
+        discount := 0;
     END IF;
 
     OPEN cur;

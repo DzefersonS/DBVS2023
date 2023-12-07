@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE Person (
+create TABLE Person (
     PersonID varchar(11),
     FirstName char(64) NOT NULL,
     LastName char(64) NOT NULL,
@@ -10,7 +10,7 @@ CREATE OR REPLACE TABLE Person (
     primary key(PersonID)
 );
 
-CREATE OR REPLACE TABLE Passenger (
+create TABLE Passenger (
     PersonID varchar(11),
     MoneyBalance integer not null DEFAULT 0,
     IsBanned boolean not null DEFAULT false,
@@ -20,7 +20,7 @@ CREATE OR REPLACE TABLE Passenger (
     foreign key (PersonID) references Person(PersonID) ON DELETE CASCADE
 );
 
-CREATE OR REPLACE TABLE Employee (
+create TABLE Employee (
     PersonID varchar(11),
     Position char(64) NOT NULL,
     HireDate date NOT NULL
@@ -29,7 +29,7 @@ CREATE OR REPLACE TABLE Employee (
     foreign key (PersonID) references Person(PersonID) ON DELETE CASCADE
 );
 
-CREATE OR REPLACE TABLE Pilot (
+create TABLE Pilot (
     PersonID varchar(11),
     LicenseNumber char(64) not null,
     IssueDate date not null 
@@ -40,7 +40,7 @@ CREATE OR REPLACE TABLE Pilot (
     foreign key (PersonID) references Employee(PersonID) ON DELETE CASCADE
 );
 
-CREATE OR REPLACE TABLE Airplane (
+create TABLE Airplane (
     AirplaneID serial,
     SeatCount integer not null
         check (SeatCount > 0),
@@ -50,14 +50,14 @@ CREATE OR REPLACE TABLE Airplane (
     primary key(AirplaneID)
 );
 
-CREATE OR REPLACE TABLE Airport (
+create TABLE Airport (
     AirportID serial,
     AirportName char(128) not null,
     CityName char(128) not null,
     primary key(AirportID)
 );
 
-CREATE OR REPLACE TABLE Route (
+create TABLE Route (
     RouteID serial,
     DepartureAirport integer not null,
     DestinationAirport integer not null,
@@ -66,7 +66,7 @@ CREATE OR REPLACE TABLE Route (
     foreign key(DestinationAirport) references Airport(AirportID) ON DELETE CASCADE
 );
 
-CREATE OR REPLACE TABLE Flight (
+create TABLE Flight (
     FlightID serial,
     DepartureTime timestamp not null
         check (DepartureTime > current_timestamp),
@@ -84,7 +84,7 @@ CREATE OR REPLACE TABLE Flight (
     foreign key(CoPilotID) references Pilot(PersonID) ON DELETE SET NULL
 );
 
-CREATE OR REPLACE TABLE Ticket (
+create TABLE Ticket (
     TicketID serial,
     FlightID integer not null,
     SeatID integer not null,

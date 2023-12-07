@@ -30,7 +30,7 @@ SELECT create_route(3, 4);
 SELECT create_route(4, 3);
 
 -- Inserting into flight
-SELECT create_flight('2023-01-01 08:00:00', '2023-01-01 12:00:00', 1, 1, 'E4001', 'E4002');
+SELECT create_flight('2024-01-01 08:00:00', '2024-01-01 12:00:00', 1, 1, '006', '008');
 
 -- Buying a few tickets
 SELECT purchase_ticket('001', 1);
