@@ -12,3 +12,9 @@ drop function add_airport;
 drop function update_airport;
 drop function create_route;
 drop function update_route;
+drop function FlightOverlap;
+drop function PassengerMaxTicketCount;
+drop function AirplaneMaxFlightPerDay;
+drop function PilotMaxFlightPerDay;
+drop function CoPilotMaxFlightPerDay;
+
