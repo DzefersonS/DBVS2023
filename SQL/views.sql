@@ -3,16 +3,20 @@ AS SELECT f.FlightID, f.AirplaneID FROM Flight f
     JOIN Airplane a ON f.AirplaneID = a.AirplaneID
     WHERE (SELECT COUNT(*) FROM Ticket t WHERE t.FlightID = f.FlightID and t.PersonID IS NOT NULL) < a.SeatCount;
 
-create VIEW BannedPassengers AS
-SELECT *
+CREATE VIEW BannedPassengers AS
+SELECT p.PersonID, p.FirstName, p.LastName, p.DateOfBirthDay, p.PhoneNumber, p.Email,
+       ps.MoneyBalance, ps.IsBanned, ps.Discount
 FROM Person p
 JOIN Passenger ps ON p.PersonID = ps.PersonID
 WHERE ps.IsBanned = true;
 
-create VIEW EmployeeDetails AS
-SELECT *
+
+CREATE VIEW EmployeeDetails AS
+SELECT p.PersonID, p.FirstName, p.LastName, p.DateOfBirthDay, p.PhoneNumber, p.Email,
+       e.Position, e.HireDate
 FROM Person p
 JOIN Employee e ON p.PersonID = e.PersonID;
+
 
 create VIEW PassengerDetails AS
 SELECT
