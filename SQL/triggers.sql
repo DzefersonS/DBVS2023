@@ -37,6 +37,8 @@ BEGIN
 
     END LOOP;
 
+        CLOSE cur;
+
     RETURN NEW;
 END; $$
 LANGUAGE plpgsql;
@@ -65,6 +67,8 @@ BEGIN
         END IF;
 
     END LOOP;
+
+    CLOSE cur;
 
     RETURN NEW;
 END; $$
@@ -96,6 +100,8 @@ BEGIN
 
     END LOOP;
 
+    CLOSE cur;
+
     RETURN NEW;
 END; $$
 LANGUAGE plpgsql;
@@ -124,6 +130,8 @@ BEGIN
         END IF;
 
     END LOOP;
+    
+    CLOSE cur;
 
     RETURN NEW;
 END; $$
