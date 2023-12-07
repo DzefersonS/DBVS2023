@@ -12,7 +12,7 @@ WHERE ps.IsBanned = true;
 create VIEW EmployeeDetails AS
 SELECT *
 FROM Person p
-JOIN Employee e ON p.PersonID = e.PassengerID;
+JOIN Employee e ON p.PersonID = e.PersonID;
 
 create VIEW PassengerDetails AS
 SELECT
