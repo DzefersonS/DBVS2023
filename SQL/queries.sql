@@ -159,8 +159,7 @@ BEGIN
         SET MoneyBalance = MoneyBalance + (ticketRecord.Price * (1 - passengerDiscount / 100.0)) 
         WHERE PersonID = ticketRecord.PersonID;
 
-        UPDATE Ticket 
-        SET PersonID = NULL 
+        DELETE FROM Ticket 
         WHERE TicketID = ticketRecord.TicketID;
     END LOOP;
 END;
