@@ -1,14 +1,14 @@
-CREATE INDEX IndexPilotID
+CREATE OR REPLACE INDEX IndexPilotID
 ON Flight(PilotID);
 
-CREATE INDEX IndexCoPilotID
+CREATE OR REPLACE INDEX IndexCoPilotID
 ON Flight(CoPilotID);
 
-CREATE INDEX IndexAirplaneID
+CREATE OR REPLACE INDEX IndexAirplaneID
 ON Flight(AirplaneID);
 
-CREATE UNIQUE INDEX PilotLicenseNumber
+CREATE OR REPLACE UNIQUE INDEX PilotLicenseNumber
 ON Pilot(LicenseNumber);
 
-CREATE UNIQUE INDEX AirplaneRegistrationNumber
+CREATE OR REPLACE UNIQUE INDEX AirplaneRegistrationNumber
 ON Airplane(RegistrationNumber);

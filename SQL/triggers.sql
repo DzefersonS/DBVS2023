@@ -1,5 +1,5 @@
 -- Limits person to buying two tickets per flight
-CREATE FUNCTION PassengerMaxTicketCount()
+CREATE OR REPLACE FUNCTION PassengerMaxTicketCount()
 RETURNS TRIGGER AS $$
 BEGIN
 
@@ -11,14 +11,14 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER PassengerMaxTicketCountTrigger
+CREATE OR REPLACE TRIGGER PassengerMaxTicketCountTrigger
 BEFORE INSERT
 ON Ticket
 FOR EACH ROW
 EXECUTE FUNCTION PassengerMaxTicketCount();
 
 -- Checks if flights do not overlap
-CREATE FUNCTION FlightOverlap()
+CREATE OR REPLACE FUNCTION FlightOverlap()
 RETURNS TRIGGER AS $$
 DECLARE
     LastFlightArrival timestamp;
@@ -41,14 +41,14 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER FlightOverlapTrigger
+CREATE OR REPLACE TRIGGER FlightOverlapTrigger
 BEFORE INSERT
 ON Flight
 FOR EACH ROW
 EXECUTE FUNCTION FlightOverlap();
 
 -- Limits airplane to having maximum one flight per day
-CREATE FUNCTION AirplaneMaxFlightPerDay()
+CREATE OR REPLACE FUNCTION AirplaneMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
     LastFlightArrival timestamp;
@@ -71,14 +71,14 @@ END; $$
 LANGUAGE plpgsql;
 
 
-CREATE TRIGGER AirplaneMaxFlightPerDayTrigger
+CREATE OR REPLACE TRIGGER AirplaneMaxFlightPerDayTrigger
 BEFORE INSERT
 ON Flight
 FOR EACH ROW
 EXECUTE FUNCTION AirplaneMaxFlightPerDay();
 
 -- Limits pilot to having maximum one flight per 12h
-CREATE FUNCTION PilotMaxFlightPerDay()
+CREATE OR REPLACE FUNCTION PilotMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
     LastFlightArrival timestamp;
@@ -100,14 +100,14 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER PilotMaxFlightPerDayTrigger
+CREATE OR REPLACE TRIGGER PilotMaxFlightPerDayTrigger
 BEFORE INSERT
 ON Flight
 FOR EACH ROW
 EXECUTE FUNCTION PilotMaxFlightPerDay();
 
 -- Limits copilot to having maximum one flight per 12h
-CREATE FUNCTION CoPilotMaxFlightPerDay()
+CREATE OR REPLACE FUNCTION CoPilotMaxFlightPerDay()
 RETURNS TRIGGER AS $$
 DECLARE
     LastFlightArrival timestamp;
@@ -129,7 +129,7 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER CoPilotMaxFlightPerDayTrigger
+CREATE OR REPLACE TRIGGER CoPilotMaxFlightPerDayTrigger
 BEFORE INSERT
 ON Flight
 FOR EACH ROW
