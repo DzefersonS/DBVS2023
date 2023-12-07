@@ -1,0 +1,14 @@
+drop function register_person;
+drop function register_passenger;
+drop function register_employee;
+drop function register_pilot;
+drop function ban_passenger;
+drop function create_flight;
+drop function cancel_flight;
+drop function purchase_ticket;
+drop function add_airplane;
+drop function update_airplane;
+drop function add_airport;
+drop function update_airport;
+drop function create_route;
+drop function update_route;
