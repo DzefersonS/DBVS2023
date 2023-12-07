@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION register_person(
+create FUNCTION register_person(
     p_PersonID varchar(11), 
     p_FirstName char(64), 
     p_LastName char(64), 
@@ -14,7 +14,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION register_passenger(
+create FUNCTION register_passenger(
     p_PersonID varchar(11), 
     p_FirstName char(64), 
     p_LastName char(64), 
@@ -33,7 +33,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION register_employee(
+create FUNCTION register_employee(
     p_PersonID varchar(11), 
     p_FirstName char(64), 
     p_LastName char(64), 
@@ -53,7 +53,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION register_pilot(
+create FUNCTION register_pilot(
     p_PersonID varchar(11), 
     p_FirstName char(64), 
     p_LastName char(64), 
@@ -76,7 +76,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION ban_passenger(p_PersonID varchar(11)) 
+create FUNCTION ban_passenger(p_PersonID varchar(11)) 
 RETURNS void AS $$
 DECLARE
     discount INTEGER;
@@ -107,7 +107,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION create_flight(
+create FUNCTION create_flight(
     p_DepartureTime timestamp,
     p_ArrivalTime timestamp,
     p_RouteID integer,
@@ -135,7 +135,7 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION cancel_flight(p_FlightID integer) 
+create FUNCTION cancel_flight(p_FlightID integer) 
 RETURNS void AS $$
 DECLARE
     ticketRecord RECORD;
@@ -166,7 +166,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION purchase_ticket(
+create FUNCTION purchase_ticket(
     p_PersonID varchar(11), 
     p_TicketID integer
 ) RETURNS void AS $$
@@ -202,7 +202,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION add_airplane(
+create FUNCTION add_airplane(
     p_SeatCount integer,
     p_TicketPrice integer,
     p_RegistrationNumber char(64)
@@ -212,7 +212,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION update_airplane(
+create FUNCTION update_airplane(
     p_AirplaneID integer,
     p_NewSeatCount integer
 ) RETURNS void AS $$
@@ -229,7 +229,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION add_airport(
+create FUNCTION add_airport(
     p_AirportName char(128),
     p_CityName char(128)
 ) RETURNS void AS $$
@@ -242,7 +242,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION update_airport(
+create FUNCTION update_airport(
     p_AirportID integer,
     p_NewAirportName char(128),
     p_NewCityName char(128)
@@ -258,7 +258,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION create_route(
+create FUNCTION create_route(
     p_DepartureAirportID integer,
     p_DestinationAirportID integer
 ) RETURNS void AS $$
@@ -273,7 +273,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION update_route(
+create FUNCTION update_route(
     p_RouteID integer,
     p_NewDepartureAirportID integer,
     p_NewDestinationAirportID integer
