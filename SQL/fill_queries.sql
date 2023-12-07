@@ -33,5 +33,5 @@ SELECT create_route(4, 3);
 SELECT create_flight('2023-01-01 08:00:00', '2023-01-01 12:00:00', 1, 1, 'E4001', 'E4002');
 
 -- Buying a few tickets
-SELECT purchase_ticket('P2001', 1);
-SELECT purchase_ticket('P2002', 2);
+SELECT purchase_ticket('001', 1);
+SELECT purchase_ticket('002', 2);
