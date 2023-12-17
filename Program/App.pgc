@@ -122,11 +122,20 @@ void PerformCreateMenuLoop()
 				case '3':
 					addNewPilot();
 					break;
+				case '4':
+					addNewFlight();
+					break;
 				case '5':
 					addNewAirplane();
 					break;
 				case '6':
 					addNewAirport();
+					break;
+				case '7':
+					addNewRoute();
+					break;
+				case '8':
+					purchaseTicket();
 					break;
 				case '0':
 					return;
@@ -232,6 +241,30 @@ void addNewPilot()
 	verifyOperationSuccess();
 }
 
+void addNewFlight()
+{
+	printf("Enter departure time: ");
+	scanf("%99s", function_params[0]);
+	
+	printf("Enter arrival time: ");
+	scanf("%99s", function_params[1]);
+	
+	printf("Enter route ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	printf("Enter airplane ID: ");
+	scanf("%d", &function_int_params[1]);
+
+	printf("Enter pilot ID: ");
+	scanf("%99s", &function_params[2]);
+
+	printf("Enter copilot ID: ");
+	scanf("%99s", &function_params[3]);
+
+	EXEC SQL SELECT create_flight(:function_params[0], :function_params[1], :function_int_params[0], :function_int_params[1], :function_params[2], :function_params[3]) INTO :result;
+	verifyOperationSuccess();
+}
+
 void addNewAirplane()
 {
 	printf("Enter seat count: ");
@@ -257,6 +290,30 @@ void addNewAirport()
 
 	EXEC SQL SELECT add_airport(:function_params[0], :function_params[1]) INTO :result;
 	verifyOperationSuccess();
+}
+
+void addNewRoute()
+{
+	printf("Enter departure airport ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	printf("Enter destination airport ID: ");
+	scanf("%d", &function_int_params[1]);
+
+	EXEC SQL SELECT create_route(:function_int_params[0], :function_int_params[1]) INTO :result;
+	verifyOperationSuccess();
+}
+
+void purchaseTicket()
+{
+	printf("Enter person ID: ");
+	scanf("%99s", function_params[0]);
+
+	printf("Enter ticket ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	EXEC SQL SELECT purchase_ticket(:function_params[0], :function_int_params[0]) INTO :result;
+	verifyOperationSuccess();	
 }
 
 void PerformUpdateMenuLoop()
