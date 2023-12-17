@@ -2,7 +2,7 @@
 
 EXEC SQL BEGIN DECLARE SECTION ;
 int result;
-char sql_user[100] = "gaza8879";
+char sql_user[100];
 char sql_password[100];
 char function_params[20][100];
 int function_int_params[10];
@@ -21,18 +21,21 @@ void waitForLogin()
 {
     struct termios oldt, newt;
 
-    // Get old settings
+    //Retrieve default settings
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
 
-    // Disable echo
+    //Disable echo flag
     newt.c_lflag &= ~(ECHO);
-
-    // Set new settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
 	for(;;)
 	{
+		printf("Enter username: ");
+		scanf("%99s", sql_user);
+
+		//Hide input
+		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
 		printf("Enter password: ");
 		scanf("%99s", sql_password);
 
@@ -41,16 +44,17 @@ void waitForLogin()
 		if(SQLCODE == 0)
 		{
 			memset(sql_password, 0, sizeof(sql_password));
+			//Re-enable input
+			tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 			break;
 		}
 		else
 		{
 			printf("Failed to connect with SQLCODE %ld. Try again.\n", SQLCODE);
+			//Re-enable input
+			tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 		}
 	}
-
-    // Restore old settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
 void doMainMenuLoop()
@@ -77,7 +81,7 @@ void doMainMenuLoop()
 					repaintStartMenu();
 					break;
 				case '4':
-					PerformDeleteMenuLoop();
+					redrawDeleteMenuLoop();
 					repaintStartMenu();
 					break;
 				case '0':
@@ -111,17 +115,23 @@ void PerformCreateMenuLoop()
 			{
 				case '1':
 					addNewPassenger();
-					repaintCreateMenu();
+					break;
+				case '2':
+					addNewEmployee();
+					break;
+				case '3':
+					addNewPilot();
 					break;
 				case '6':
 					addNewAirport();
-					repaintCreateMenu();
 					break;
 				case '0':
 					return;
 				default:
 					continue;
 			}
+			
+			repaintCreateMenu();
 		}
 	}
 }
@@ -141,40 +151,82 @@ void repaintCreateMenu()
 	printf("0 - Return to main menu\n");
 }
 
-void addNewPassenger()
+void readPersonData()
 {
-	printf("Enter passenger id: ");
+	printf("Enter person id: ");
 	scanf("%99s", function_params[0]);
 
-	printf("Enter passenger first name: ");
+	printf("Enter person first name: ");
 	scanf("%99s", function_params[1]);
 
-	printf("Enter passenger last name: ");
+	printf("Enter person last name: ");
 	scanf("%99s", function_params[2]);
 	
-	printf("Enter passenger date of birth: ");
+	printf("Enter person date of birth: ");
 	scanf("%99s", function_params[3]);
 
-	printf("Enter passenger phone number: ");
+	printf("Enter person phone number: ");
 	scanf("%99s", function_params[4]);
 	
-	printf("Enter passenger email: ");
+	printf("Enter person email: ");
 	scanf("%99s", function_params[5]);
+}
+
+void readPassengerData()
+{
+	readPersonData();
 
 	printf("Enter passenger balance: ");
 	scanf("%d", &function_int_params[0]);
+}
+
+void readEmployeeData()
+{
+	readPersonData();
+
+	printf("Enter employee position: ");
+	scanf("%99s", function_params[6]);
+
+	printf("Enter employee date of hire: ");
+	scanf("%99s", function_params[7]);
+}
+
+void readPilotData()
+{
+	readEmployeeData();
+
+	printf("Enter pilot license number: ");
+	scanf("%99s", function_params[8]);
+
+	printf("Enter pilot license issue date: ");
+	scanf("%99s", function_params[9]);
+
+	printf("Enter pilot license expiration date: ");
+	scanf("%99s", function_params[10]);
+}
+
+void addNewPassenger()
+{
+	readPassengerData();
 
 	EXEC SQL SELECT register_passenger(:function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_int_params[0]) INTO :result;
-	if(SQLCODE == 0)
-	{
-		EXEC SQL COMMIT;
-		printf("Operation completed!");
-	}
-	else
-	{
-		printf("Failed to complete operation!");
-		printError();
-	}
+	verifyOperationSuccess();
+}
+
+void addNewEmployee()
+{
+	readEmployeeData();
+
+	EXEC SQL SELECT register_employee(:function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_params[6], :function_params[7]) INTO :result;
+	verifyOperationSuccess();
+}
+
+void addNewPilot()
+{
+	readPilotData();
+
+	EXEC SQL SELECT register_employee(:function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_params[6], :function_params[7], :function_params[8], :function_params[9], :function_params[10]) INTO :result;
+	verifyOperationSuccess();
 }
 
 void addNewAirport()
@@ -186,18 +238,7 @@ void addNewAirport()
 	scanf("%99s", function_params[1]);
 
 	EXEC SQL SELECT add_airport(:function_params[0], :function_params[1]) INTO :result;
-	if(SQLCODE == 0)
-	{
-		EXEC SQL COMMIT;
-		printf("Operation completed!");
-		fflush(stdout);
-		sleep(2);
-	}
-	else
-	{
-		printf("Failed to complete operation!");
-		printError();
-	}
+	verifyOperationSuccess();
 }
 
 void PerformUpdateMenuLoop()
@@ -231,7 +272,7 @@ void PerformUpdateMenuLoop()
 	}
 }
 
-void PerformDeleteMenuLoop()
+void redrawDeleteMenuLoop()
 {
 	system("clear");
 	printf("Choose an option:\n");
@@ -257,5 +298,40 @@ void PerformDeleteMenuLoop()
 					continue;
 			}
 		}
+	}
+}
+
+void verifyOperationSuccess()
+{
+    if(SQLCODE == 0)
+	{
+		EXEC SQL COMMIT;
+		printf("Operation completed!");
+		fflush(stdout);
+		sleep(2);
+	}
+	else
+	{
+		printf("Failed to complete operation!");
+		printError();
+	}
+}
+
+void printError()
+{
+	if(DEBUG_MODE)
+	{
+		fprintf(stderr, "==== sqlca ====\n");
+		fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+		fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+		fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+		fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+															sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+		fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+															sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+															sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+		fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+		fprintf(stderr, "===============\n");
+		exit(-1);
 	}
 }
