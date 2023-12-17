@@ -1,25 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <termios.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
+#include "App.h"
 
 EXEC SQL BEGIN DECLARE SECTION ;
+int result;
 char sql_user[100] = "gaza8879";
 char sql_password[100];
 char function_params[20][100];
 int function_int_params[10];
 EXEC SQL END DECLARE SECTION ;
-
-void waitForLogin();
-void doMainMenuLoop();
-void repaintStartMenu();
-void PerformCreateMenuLoop();
-void PerformUpdateMenuLoop();
-void PerformDeleteMenuLoop();
-int linux_getch();
-int linux_kbhit();
 
 int main()
 {
@@ -123,7 +110,11 @@ void PerformCreateMenuLoop()
 			switch(keyPressed)
 			{
 				case '1':
-					AddNewPassenger();
+					addNewPassenger();
+					repaintCreateMenu();
+					break;
+				case '6':
+					addNewAirport();
 					repaintCreateMenu();
 					break;
 				case '0':
@@ -150,58 +141,62 @@ void repaintCreateMenu()
 	printf("0 - Return to main menu\n");
 }
 
-void AddNewPassenger()
+void addNewPassenger()
 {
-	system("clear");
-	printf("Enter the person's ID: ");
-	memset(function_params[0], '\0', sizeof(function_params[0]));
-	scanf("%12s", function_params[0]);
+	printf("Enter passenger id: ");
+	scanf("%99s", function_params[0]);
 
-	printf("Enter the person's first name: ");
-	memset(function_params[1], '\0', sizeof(function_params[1]));
-	scanf("%64s", function_params[1]);
-	printf("Enter the person's last name: ");
-	memset(function_params[2], '\0', sizeof(function_params[2]));
-	scanf("%64s", function_params[2]);
+	printf("Enter passenger first name: ");
+	scanf("%99s", function_params[1]);
 
-	printf("Enter the person's date of birth: ");
-	memset(function_params[3], '\0', sizeof(function_params[3]));
-	scanf("%11s", function_params[3]);
+	printf("Enter passenger last name: ");
+	scanf("%99s", function_params[2]);
+	
+	printf("Enter passenger date of birth: ");
+	scanf("%99s", function_params[3]);
 
-	printf("Enter the person's phone number: ");
-	memset(function_params[4], '\0', sizeof(function_params[4]));
-	scanf("%16s", function_params[4]);
-
-	printf("Enter the person's email: ");
-	memset(function_params[5], '\0', sizeof(function_params[5]));
+	printf("Enter passenger phone number: ");
+	scanf("%99s", function_params[4]);
+	
+	printf("Enter passenger email: ");
 	scanf("%99s", function_params[5]);
 
-	printf("Enter the person's money balance: ");
+	printf("Enter passenger balance: ");
 	scanf("%d", &function_int_params[0]);
 
-	EXEC SQL SELECT register_person( :function_params[0],
-										:function_params[1],
-										:function_params[2],
-										:function_params[3],
-										:function_params[4],
-										:function_params[5]
-	) ;
-
-	if(SQLCODE != 0)
+	EXEC SQL SELECT register_passenger(:function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_int_params[0]) INTO :result;
+	if(SQLCODE == 0)
 	{
-		printf("Passenger insuccessfully added. SQLCODE = %d\n", SQLCODE);
-		    fprintf(stderr, "==== sqlca ====\n");
-		fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
-		fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
-		fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
-		fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
-															sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
-		fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
-															sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
-															sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
-		fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
-		fprintf(stderr, "===============\n");
-			exit(-1);
+		EXEC SQL COMMIT;
+		printf("Operation completed!");
+	}
+	else
+	{
+		printf("Failed to complete operation!");
+		printError();
+	}
+}
+
+void addNewAirport()
+{
+	printf("Enter airport name: ");
+	scanf("%99s", function_params[0]);
+
+	printf("Enter city name: ");
+	scanf("%99s", function_params[1]);
+
+	EXEC SQL SELECT add_airport(:function_params[0], :function_params[1]) INTO :result;
+	if(SQLCODE == 0)
+	{
+		EXEC SQL COMMIT;
+		printf("Operation completed!");
+		fflush(stdout);
+		sleep(2);
+	}
+	else
+	{
+		printf("Failed to complete operation!");
+		printError();
 	}
 }
 
@@ -263,40 +258,4 @@ void PerformDeleteMenuLoop()
 			}
 		}
 	}
-}
-
-int linux_getch() {
-    struct termios oldt, newt;
-    int ch;
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    ch = getchar();
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    return ch;
-}
-
-int linux_kbhit() {
-    struct termios oldt, newt;
-    int ch, oldf;
-
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-    ch = getchar();
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-    if (ch != EOF) {
-        ungetc(ch, stdin);
-        return 1;
-    }
-
-    return 0;
 }

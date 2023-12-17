@@ -14,23 +14,23 @@
 #include <fcntl.h>
 
 /* exec sql begin declare section */
-   
  
+   
  
  
  
 
 #line 9 "App.pgc"
- char sql_user [ 100 ] = "gaza8879" ;
+ int result ;
  
 #line 10 "App.pgc"
- char sql_password [ 100 ] ;
+ char sql_user [ 100 ] = "gaza8879" ;
  
 #line 11 "App.pgc"
- char function_params [ 20 ] [ 100 ] ;
+ char sql_password [ 100 ] ;
  
 #line 12 "App.pgc"
- char dob [ 11 ] ;
+ char function_params [ 20 ] [ 100 ] ;
  
 #line 13 "App.pgc"
  int function_int_params [ 10 ] ;
@@ -156,6 +156,10 @@ void PerformCreateMenuLoop()
 					AddNewPassenger();
 					repaintCreateMenu();
 					break;
+				case '6':
+					addNewAirport();
+					repaintCreateMenu();
+					break;
 				case '0':
 					return;
 				default:
@@ -195,7 +199,8 @@ void AddNewPassenger()
 	scanf("%64s", function_params[2]);
 
 	printf("Enter the person's date of birth: ");
-	scanf("%11s", dob);
+	memset(function_params[3], '\0', sizeof(function_params[3]));
+	scanf("%11s", function_params[3]);
 
 	printf("Enter the person's phone number: ");
 	memset(function_params[4], '\0', sizeof(function_params[4]));
@@ -215,33 +220,64 @@ void AddNewPassenger()
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(function_params[2]),(long)100,(long)1,(100)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
-	ECPGt_char,(dob),(long)11,(long)1,(11)*sizeof(char), 
+	ECPGt_char,(function_params[3]),(long)100,(long)1,(100)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(function_params[4]),(long)100,(long)1,(100)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
 	ECPGt_char,(function_params[5]),(long)100,(long)1,(100)*sizeof(char), 
 	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
-#line 188 "App.pgc"
+#line 193 "App.pgc"
 
 
 	if(SQLCODE != 0)
 	{
-		for(int i = 0; i < 11; ++i)
-		{
-			printf("%c", dob[i]);
-		}
-		printf("Passenger insuccessfully added. SQLCODE = %d", SQLCODE);
+		printf("Passenger insuccessfully added. SQLCODE = %d\n", SQLCODE);
 		    fprintf(stderr, "==== sqlca ====\n");
-    fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
-    fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
-    fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
-    fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
-                                                          sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
-    fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
-                                                          sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
-                                                          sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
-    fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
-    fprintf(stderr, "===============\n");
+		fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+		fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+		fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+		fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+															sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+		fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+															sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+															sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+		fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+		fprintf(stderr, "===============\n");
+			exit(-1);
+	}
+}
+
+void addNewAirport()
+{
+	printf("Enter airport name: ");
+	scanf("%99s", function_params[0]);
+
+	printf("Enter city name: ");
+	scanf("%99s", function_params[1]);
+
+	{ ECPGdo(__LINE__, 0, 1, NULL, 0, ECPGst_normal, "select add_airport ( $1  , $2  ) into void", 
+	ECPGt_char,(function_params[0]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, 
+	ECPGt_char,(function_params[1]),(long)100,(long)1,(100)*sizeof(char), 
+	ECPGt_NO_INDICATOR, NULL , 0L, 0L, 0L, ECPGt_EOIT, ECPGt_EORT);}
+#line 221 "App.pgc"
+
+
+	printf("%ld", result);
+	exit(-1);
+	if(SQLCODE != 0)
+	{
+		fprintf(stderr, "==== sqlca ====\n");
+		fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+		fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+		fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+		fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+															sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+		fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+															sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+															sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+		fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+		fprintf(stderr, "===============\n");
 		exit(-1);
 	}
 }
