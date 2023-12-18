@@ -70,14 +70,14 @@ void doMainMenuLoop()
 			switch(keyPressed)
 			{
 				case '1':
-					PerformCreateMenuLoop();
+					repaintCreateMenuLoop();
 					repaintStartMenu();
 					break;
 				case '2':
 					repaintStartMenu();
 					break;
 				case '3':
-					PerformUpdateMenuLoop();
+					repaintUpdateMenuLoop();
 					repaintStartMenu();
 					break;
 				case '4':
@@ -102,7 +102,7 @@ void repaintStartMenu()
 	printf("0 - Exit the application\n");
 }
 
-void PerformCreateMenuLoop()
+void repaintCreateMenuLoop()
 {
 	repaintCreateMenu();
 	for(;;)
@@ -316,18 +316,13 @@ void purchaseTicket()
 	verifyOperationSuccess();	
 }
 
-void PerformUpdateMenuLoop()
+void repaintUpdateMenuLoop()
 {
 	system("clear");
 	printf("Choose an option:\n");
-	printf("1 - Update a person\n");
-	printf("2 - Update a passenger\n");
-	printf("3 - Update an employee\n");
-	printf("4 - Update a pilot\n");
-	printf("5 - Update a flight\n");
-	printf("6 - Update an airplane\n");
-	printf("7 - Update an airport\n");
-	printf("8 - Update a route\n");
+	printf("1 - Update an airplane\n");
+	printf("2 - Update an airport\n");
+	printf("3 - Update a route\n");
 	printf("0 - Return to main menu\n");
 
 	for(;;)
@@ -338,13 +333,66 @@ void PerformUpdateMenuLoop()
 
 			switch(keyPressed)
 			{
+				case '1':
+					updateAirplane();
+					break;
+				case '2':
+					updateAirport();
+					break;
+				case '3':
+					updateRoute();
+					break;
 				case '0':
 					return;
 				default:
 					continue;
 			}
+
+			repaintUpdateMenuLoop();
 		}
 	}
+}
+
+void updateAirplane()
+{
+	printf("Enter airplane ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	printf("Enter new seat count: ");
+	scanf("%d", &function_int_params[1]);
+
+	EXEC SQL SELECT update_airplane(:function_int_params[0], :function_int_params[1]) INTO :reuslt;
+	verifyOperationSuccess();
+}
+
+void updateAirport()
+{
+	printf("Enter airport ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	printf("Enter new airport name: ");
+	scanf("%99s", function_params[0]);
+	
+	printf("Enter new city name: ");
+	scanf("%99s", function_params[1]);
+
+	EXEC SQL SELECT update_airport(:function_int_params[0], :function_params[0], :function_params[1]) INTO :result;
+	verifyOperationSuccess();
+}
+
+void updateRoute()
+{
+	printf("Enter route ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	printf("Enter new departure airport ID: ");
+	scanf("%d", &function_int_params[1]);
+
+	printf("Enter new destination airport ID: ");
+	scanf("%d", &function_int_params[2]);
+
+	EXEC SQL SELECT update_route(:function_int_params[0], :function_int_params[1], :function_int_params[2]) INTO :result;
+	verifyOperationSuccess();
 }
 
 void redrawDeleteMenuLoop()
@@ -352,11 +400,7 @@ void redrawDeleteMenuLoop()
 	system("clear");
 	printf("Choose an option:\n");
 	printf("1 - Ban a passenger\n");
-	printf("2 - Fire an employee\n");
-	printf("3 - Cancel a flight\n");
-	printf("4 - Remove an airplane\n");
-	printf("5 - Remove an airport\n");
-	printf("6 - Remove a route\n");
+	printf("2 - Cancel a flight\n");
 	printf("0 - Return to main menu\n");
 
 	for(;;)
@@ -367,13 +411,39 @@ void redrawDeleteMenuLoop()
 
 			switch(keyPressed)
 			{
+				case '1':
+					banPassenger();
+					break;
+				case '2':
+					cancelFlight();
+					break;
 				case '0':
 					return;
 				default:
 					continue;
 			}
+
+			redrawDeleteMenuLoop();
 		}
 	}
+}
+
+void banPassenger()
+{
+	printf("Enter person ID: ");
+	scanf("%99s", function_params[0]);
+
+	EXEC SQL SELECT ban_passenger(:function_params[0]) INTO :result;
+	verifyOperationSuccess();
+}
+
+void cancelFlight()
+{
+	printf("Enter flight ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	EXEC SQL SELECT cancel_flight(:function_int_params[0]) INTO :result;
+	verifyOperationSuccess();
 }
 
 void verifyOperationSuccess()
