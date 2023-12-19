@@ -79,26 +79,26 @@ $$ LANGUAGE plpgsql;
 create FUNCTION ban_passenger(p_PersonID varchar(11)) 
 RETURNS void AS $$
 DECLARE
-    discount INTEGER;
-    ticketPrice INTEGER;
-    ticketID INTEGER;
-    cur CURSOR FOR SELECT TicketID, Price FROM Ticket WHERE PersonID = p_PersonID;
+    p_Discount INTEGER;
+    p_ticketPrice INTEGER;
+    p_ticketID INTEGER;
+    cur CURSOR FOR SELECT Ticket.TicketID, Ticket.Price FROM Ticket WHERE PersonID = p_PersonID;
 BEGIN
-    SELECT Discount INTO discount FROM Passenger WHERE PersonID = p_PersonID;
+    SELECT Passenger.Discount INTO p_Discount FROM Passenger WHERE PersonID = p_PersonID;
     IF NOT FOUND THEN
-        discount := 0;
+        p_Discount := 0;
     END IF;
 
     OPEN cur;
 
     LOOP
-        FETCH cur INTO ticketID, ticketPrice;
+        FETCH cur INTO p_ticketID, p_ticketPrice;
         EXIT WHEN NOT FOUND;
 
-        UPDATE Passenger SET MoneyBalance = MoneyBalance + ticketPrice * (1 - discount / 100.0)
+        UPDATE Passenger SET MoneyBalance = MoneyBalance + p_ticketPrice * (1 - discount / 100.0)
         WHERE PersonID = p_PersonID;
         
-        UPDATE Ticket SET PersonID = NULL WHERE TicketID = ticketID;
+        UPDATE Ticket SET PersonID = NULL WHERE TicketID = p_ticketID;
     END LOOP;
 
     CLOSE cur;
