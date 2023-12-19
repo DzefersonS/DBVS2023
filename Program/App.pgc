@@ -323,6 +323,8 @@ void repaintViewMenuLoop()
 	printf("2 - View all employee details.\n");
 	printf("3 - Show banned passengers.\n");
 	printf("4 - Show flights that have not yet sold out.\n");
+	printf("5 - Show all owned ticket details.\n");
+	printf("0 - Return to main menu.\n");
 
 	for(;;)
 	{
@@ -343,6 +345,9 @@ void repaintViewMenuLoop()
 					break;
 				case '4':
 					viewNotSoldOutFlights();
+					break;
+				case '5':
+					viewTicketDetails();
 					break;
 				case '0':
 					return;
@@ -561,6 +566,138 @@ void viewNotSoldOutFlights()
 	}
 
 	EXEC SQL CLOSE flightNotSoldOutIndex;
+	verifyOperationSuccess();
+}
+
+void viewTicketDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM TicketDetails;
+
+	EXEC SQL DECLARE ticketIndex CURSOR FOR
+		SELECT * FROM TicketDetails;
+	EXEC SQL OPEN ticketIndex;
+
+	centerText("TicketID", 12);
+	printf("|");
+
+	centerText("Price", 12);
+	printf(" |");
+
+	centerText("SeatID", 12);
+	printf("|");
+
+	centerText("PersonID", 12);
+	printf("|");
+	
+	centerText("FirstName", 66);
+	printf(" |");
+
+	centerText("LastName", 66);
+	printf("|");
+
+	centerText("DateOfBirthDay", 16);
+	printf("|");
+	
+	centerText("FlightID", 12);
+	printf(" |");
+
+	centerText("DepartureTime", 34);
+	printf("|");
+
+	centerText("ArrivalTime", 34);
+	printf("|");
+	
+	centerText("IsCancelled", 14);
+	printf(" |");
+
+	centerText("SeatCount", 12);
+	printf(" |");
+	
+	centerText("TicketPrice", 14);
+	printf(" |");
+	
+	centerText("DepartureAirport", 18);
+	printf("|");
+	
+	centerText("DestinationAirport", 20);
+	printf("|");
+	
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH ticketIndex INTO :function_params[0], :function_params[1],
+										:function_params[2], :function_params[3],
+										:function_params[4], :function_params[5],
+										:function_params[6], :function_params[7],
+										:function_params[8], :function_params[9],
+										:function_params[10], :function_params[11],
+										:function_params[12], :function_params[13],
+										:function_params[14];
+
+		//TicketID
+		modifyString(function_params[0], 10);
+		printf(" %10s |", function_params[0]);
+		
+		//Price
+		modifyString(function_params[1], 10);
+		printf(" %10s |", function_params[1]);
+		
+		//SeatID
+		modifyString(function_params[2], 10);
+		printf(" %10s |", function_params[2]);
+		
+		//PersonID
+		modifyString(function_params[3], 10);
+		printf(" %10s |", function_params[3]);
+		
+		//FirstName
+		modifyString(function_params[4], 64);
+		printf(" %64s |", function_params[4]);
+		
+		//LastName
+		modifyString(function_params[5], 64);
+		printf(" %64s |", function_params[5]);
+		
+		//DateOfBirthDay
+		modifyString(function_params[6], 14);
+		printf(" %14s |", function_params[6]);
+		
+		//FlightID
+		modifyString(function_params[7], 11);
+		printf(" %11s |", function_params[7]);
+		
+		//DepartureTime
+		modifyString(function_params[8], 31);
+		printf(" %11s |", function_params[8]);
+		
+		//ArrivalTime
+		modifyString(function_params[9], 31);
+		printf(" %11s |", function_params[9]);
+		
+		//IsCancelled
+		modifyString(function_params[10], 12);
+		printf(" %12s |", function_params[10]);
+		
+		//SeatCount
+		modifyString(function_params[11], 10);
+		printf(" %10s |", function_params[11]);
+		
+		//TicketPrice
+		modifyString(function_params[12], 12);
+		printf(" %12s |", function_params[12]);
+		
+		//DepartureAirport
+		modifyString(function_params[13], 16);
+		printf(" %16s |", function_params[13]);
+		
+		//DestinationAirport
+		modifyString(function_params[14], 18);
+		printf(" %18s |", function_params[14]);
+
+		printf("\n");
+	}
+
+	EXEC SQL CLOSE ticketIndex;
 	verifyOperationSuccess();
 }
 
