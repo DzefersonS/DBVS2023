@@ -4,7 +4,7 @@ EXEC SQL BEGIN DECLARE SECTION ;
 int result;
 char sql_user[100];
 char sql_password[100];
-char function_params[20][100];
+char function_params[20][999];
 int function_int_params[10];
 EXEC SQL END DECLARE SECTION ;
 
@@ -71,22 +71,21 @@ void doMainMenuLoop()
 			{
 				case '1':
 					repaintCreateMenuLoop();
-					repaintStartMenu();
 					break;
 				case '2':
-					repaintStartMenu();
+					repaintViewMenuLoop();
 					break;
 				case '3':
 					repaintUpdateMenuLoop();
-					repaintStartMenu();
 					break;
 				case '4':
 					redrawDeleteMenuLoop();
-					repaintStartMenu();
 					break;
 				case '0':
 					return;
 			}
+
+			repaintStartMenu();
 		}
 	}
 }
@@ -316,6 +315,217 @@ void purchaseTicket()
 	verifyOperationSuccess();	
 }
 
+void repaintViewMenuLoop()
+{
+	system("clear");
+	printf("Choose an option:\n");
+	printf("1 - View all passenger details.\n");
+	printf("2 - View all employee details.\n");
+	printf("3 - Show banned passengers.\n");
+	printf("4 - Show flights that have not yet sold out.\n");
+
+	for(;;)
+	{
+		if(linux_kbhit())
+		{
+			char keyPressed = linux_getch();
+
+			switch(keyPressed)
+			{
+				case '1':
+					viewPassengerDetails();
+					break;
+				case '2':
+					viewEmployeeDetails();
+					break;
+				case '3':
+					viewBannedPassengerDetails();
+					break;
+				case '0':
+					return;
+				default:
+					continue;
+			}
+
+			repaintViewMenuLoop();
+		}
+	}
+}
+
+void printPassengerTableHeader()
+{
+	centerText("PersonID", 12);
+	printf(" |");
+	centerText("FirstName", 66);
+	printf(" |");
+	centerText("LastName", 66);
+	printf("|");
+	centerText("DateOfBirthDay", 16);
+	printf("|");
+	centerText("PhoneNumber", 16);
+	printf(" |");
+	centerText("Email", 66);
+	printf(" |");
+	centerText("Balance", 12);
+	printf(" |");
+	centerText("IsBanned", 10);
+	printf("|");
+	centerText("Discount", 10);
+	printf("|");
+	
+	printf("\n");
+}
+
+void printPassengerTableDetails()
+{
+	//PersonID
+	modifyString(function_params[0], 11);
+	printf(" %11s |", function_params[0]);
+
+	//FirstName
+	modifyString(function_params[1], 64);
+	printf(" %64s |", function_params[1]);
+	
+	//LastName
+	modifyString(function_params[2], 64);
+	printf(" %64s |", function_params[2]);
+
+	//DateOfBirthDay
+	modifyString(function_params[3], 14);
+	printf(" %14s |", function_params[3]);
+
+	//PhoneNumber
+	modifyString(function_params[4], 14);
+	printf(" %14s |", function_params[4]);
+
+	//Email
+	modifyString(function_params[5], 64);
+	printf(" %64s |", function_params[5]);
+
+	//Balance
+	modifyString(function_params[6], 10);
+	printf(" %10s |", function_params[6]);
+
+	//IsBanned
+	modifyString(function_params[7], 8);
+	printf(" %8s |", function_params[7]);
+
+	//Discount
+	modifyString(function_params[8], 8);
+	printf(" %8s |", function_params[8]);
+
+	printf("\n");
+}
+
+void viewPassengerDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM Passenger;
+
+	EXEC SQL DECLARE passengerIndex CURSOR FOR
+		SELECT * FROM PassengerDetails;
+	EXEC SQL OPEN passengerIndex;
+
+	printPassengerTableHeader();
+
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH passengerIndex INTO :function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_params[6], :function_params[7], :function_params[8];
+		printPassengerTableDetails();
+	}
+	EXEC SQL CLOSE passengerIndex;
+
+	verifyOperationSuccess();
+}
+
+void viewBannedPassengerDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM Passenger WHERE Passenger.isBanned = true;
+
+	EXEC SQL DECLARE bannedPassengerIndex CURSOR FOR
+		SELECT * FROM BannedPassengers;
+	EXEC SQL OPEN bannedPassengerIndex;
+
+	printPassengerTableHeader();
+
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH bannedPassengerIndex INTO :function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_params[6], :function_params[7], :function_params[8];
+		printPassengerTableDetails();
+	}
+	EXEC SQL CLOSE bannedPassengerIndex;
+
+	verifyOperationSuccess();
+}
+
+void viewEmployeeDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM Employee;
+
+	EXEC SQL DECLARE employeeIndex CURSOR FOR
+		SELECT * FROM EmployeeDetails;
+	EXEC SQL OPEN employeeIndex;
+
+	centerText("PersonID", 12);
+	printf(" |");
+	centerText("FirstName", 66);
+	printf(" |");
+	centerText("LastName", 66);
+	printf("|");
+	centerText("DateOfBirthDay", 16);
+	printf("|");
+	centerText("PhoneNumber", 16);
+	printf(" |");
+	centerText("Email", 66);
+	printf(" |");
+	centerText("Position", 66);
+	printf("|");
+	centerText("HireDate", 16);
+	printf("|");
+
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH employeeIndex INTO :function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4], :function_params[5], :function_params[6], :function_params[7];
+
+		//PersonID
+		modifyString(function_params[0], 11);
+		printf(" %11s |", function_params[0]);
+
+		//FirstName
+		modifyString(function_params[1], 64);
+		printf(" %64s |", function_params[1]);
+		
+		//LastName
+		modifyString(function_params[2], 64);
+		printf(" %64s |", function_params[2]);
+
+		//DateOfBirthDay
+		modifyString(function_params[3], 14);
+		printf(" %14s |", function_params[3]);
+
+		//PhoneNumber
+		modifyString(function_params[4], 14);
+		printf(" %14s |", function_params[4]);
+
+		//Email
+		modifyString(function_params[5], 64);
+		printf(" %64s |", function_params[5]);
+
+		//Position
+		modifyString(function_params[6], 64);
+		printf(" %64s |", function_params[6]);
+
+		//HireDate
+		modifyString(function_params[7], 14);
+		printf(" %14s |", function_params[7]);
+
+		printf("\n");
+	}
+	EXEC SQL CLOSE employeeIndex;
+
+	verifyOperationSuccess();
+}
+
 void repaintUpdateMenuLoop()
 {
 	system("clear");
@@ -361,7 +571,7 @@ void updateAirplane()
 	printf("Enter new seat count: ");
 	scanf("%d", &function_int_params[1]);
 
-	EXEC SQL SELECT update_airplane(:function_int_params[0], :function_int_params[1]) INTO :reuslt;
+	EXEC SQL SELECT update_airplane(:function_int_params[0], :function_int_params[1]) INTO :result;
 	verifyOperationSuccess();
 }
 

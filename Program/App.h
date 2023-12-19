@@ -11,12 +11,15 @@ void waitForLogin();
 void doMainMenuLoop();
 void repaintStartMenu();
 void repaintCreateMenuLoop();
+void repaintViewMenuLoop(); 
 void repaintUpdateMenuLoop();
 void redrawDeleteMenuLoop();
 int linux_getch();
 int linux_kbhit();
 void printError();
 void verifyOperationSuccess();
+void centerText();
+void modifyString();
 
 int linux_getch() {
     struct termios oldt, newt;
@@ -52,4 +55,35 @@ int linux_kbhit() {
     }
 
     return 0;
+}
+
+void centerText(char *text, int fieldWidth) {
+    int padlen = (fieldWidth - strlen(text)) / 2;
+    printf("%*s%s%*s", padlen, "", text, padlen, "");
+} 
+
+
+void modifyString(char *str, int newLength) {
+    int start = 0;
+    while (isspace((unsigned char) str[start])) {
+        start++;
+    }
+
+    int j = 0;
+    for (int i = start; str[i] != '\0'; i++, j++) {
+        str[j] = str[i];
+    }
+    str[j] = '\0';
+
+    int currentLength = strlen(str);
+    int spacesToAdd = newLength - currentLength;
+
+    if (spacesToAdd > 0) {
+        for (int i = currentLength; i < newLength; i++) {
+            str[i] = ' ';
+        }
+        str[newLength] = '\0';
+    } else {
+        str[newLength] = '\0';
+    }
 }
