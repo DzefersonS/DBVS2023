@@ -341,6 +341,9 @@ void repaintViewMenuLoop()
 				case '3':
 					viewBannedPassengerDetails();
 					break;
+				case '4':
+					viewNotSoldOutFlights();
+					break;
 				case '0':
 					return;
 				default:
@@ -370,7 +373,7 @@ void printPassengerTableHeader()
 	printf(" |");
 	centerText("IsBanned", 10);
 	printf("|");
-	centerText("Discount", 10);
+	centerText("Discount", 12);
 	printf("|");
 	
 	printf("\n");
@@ -411,8 +414,8 @@ void printPassengerTableDetails()
 	printf(" %8s |", function_params[7]);
 
 	//Discount
-	modifyString(function_params[8], 8);
-	printf(" %8s |", function_params[8]);
+	modifyString(function_params[8], 10);
+	printf(" %10s |", function_params[8]);
 
 	printf("\n");
 }
@@ -523,6 +526,41 @@ void viewEmployeeDetails()
 	}
 	EXEC SQL CLOSE employeeIndex;
 
+	verifyOperationSuccess();
+}
+
+void viewNotSoldOutFlights()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM FlightsNotSoldOut;
+
+	EXEC SQL DECLARE flightNotSoldOutIndex CURSOR FOR
+		SELECT * FROM FlightsNotSoldOut;
+	EXEC SQL OPEN flightNotSoldOutIndex;
+
+	centerText("FlightID", 12);
+	printf("|");
+
+	centerText("AirplaneID", 12);
+	printf("|");
+	
+	printf ("\n");
+
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH flightNotSoldOutIndex INTO :function_params[0], :function_params[1];
+
+		//FlightID
+		modifyString(function_params[0], 10);
+		printf(" %10s |", function_params[0]);
+		
+		//AirplaneID
+		modifyString(function_params[1], 10);
+		printf(" %10s |", function_params[1]);
+
+		printf("\n");
+	}
+
+	EXEC SQL CLOSE flightNotSoldOutIndex;
 	verifyOperationSuccess();
 }
 
