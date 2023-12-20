@@ -247,9 +247,11 @@ void addNewFlight()
 	
 	printf("Enter arrival time: ");
 	scanf("%99s", function_params[1]);
-	
+
+	viewRouteDetails();
 	printf("Enter route ID: ");
 	scanf("%d", &function_int_params[0]);
+
 
 	printf("Enter airplane ID: ");
 	scanf("%d", &function_int_params[1]);
@@ -465,6 +467,7 @@ void viewBannedPassengerDetails()
 	verifyOperationSuccess();
 }
 
+
 void viewEmployeeDetails()
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM Employee;
@@ -567,6 +570,48 @@ void viewNotSoldOutFlights()
 
 	EXEC SQL CLOSE flightNotSoldOutIndex;
 	verifyOperationSuccess();
+}
+
+void viewRouteDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM RouteDetails;
+	
+	EXEC SQL DECLARE routeIndex CURSOR FOR
+		SELECT * FROM RouteDetails;
+	EXEC SQL OPEN routeIndex;
+
+	centerText("RouteID", 12);
+	printf(" |");
+
+	centerText("Departure airport", 66);
+	printf("|");
+	
+	centerText("Destination Airport", 66);
+	printf("|");
+
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH routeIndex INTO :function_params[19], :function_params[18], :function_params[17];
+
+		//RouteID
+		modifyString(function_params[0], 11);
+		printf(" %11s |", function_params[19]);
+
+		//ArrivalAirport
+		modifyString(function_params[1], 64);
+		printf(" %32s |", function_params[18]);
+		
+		//DestinationAirport
+		modifyString(function_params[2], 64);
+		printf(" %32s |", function_params[17]);
+
+		printf("\n");
+	}
+	EXEC SQL CLOSE routeIndex;
+
+	verifyOperationSuccessAlternative();
+
 }
 
 void viewTicketDetails()
@@ -836,11 +881,32 @@ void verifyOperationSuccess()
     if(SQLCODE == 0)
 	{
 		EXEC SQL COMMIT;
-		printf("Operation completed!");
+		printf("Operation completed! Press any key to continue");
 		fflush(stdout);
-		sleep(2);
+		waitForKeyPress();
 	}
 	else
+	{
+		printf("Failed to complete operation!");
+		printError();
+		printf("Press any key to continue");
+		waitForKeyPress();
+	}
+}
+
+void waitForKeyPress()
+{
+	while(1)
+	{
+		if(linux_kbhit())
+		{
+			break;
+		}
+	}
+}
+void verifyOperationSuccessAlternative()
+{
+    if(SQLCODE != 0)
 	{
 		printf("Failed to complete operation!");
 		printError();

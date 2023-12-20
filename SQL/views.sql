@@ -17,6 +17,15 @@ SELECT p.PersonID, p.FirstName, p.LastName, p.DateOfBirthDay, p.PhoneNumber, p.E
 FROM Person p
 JOIN Employee e ON p.PersonID = e.PersonID;
 
+CREATE VIEW RouteDetails AS
+SELECT
+    r.RouteID,
+    departure.AirportName AS DepartureAirport,
+    destination.AirportName AS DestinationAirport
+FROM Route r
+JOIN Airport departure ON r.DepartureAirport = departure.AirportID
+JOIN Airport destination ON r.DestinationAirport = destination.AirportID;
+
 
 create VIEW PassengerDetails AS
 SELECT
