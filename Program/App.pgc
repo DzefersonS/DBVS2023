@@ -315,11 +315,15 @@ void purchaseTicket()
 	printf("Enter person ID: ");
 	scanf("%99s", function_params[0]);
 
-	//todo
-	printf("Enter ticket ID: ");
-	scanf("%d", &function_int_params[0]);
+	viewFlights(false, true);
+	printf("Enter flight ID: ");
+	scanf("%d", &function_int_params[1]);
 
-	EXEC SQL SELECT purchase_ticket(:function_params[0], :function_int_params[0]) INTO :result;
+	viewTickets();
+	printf("Enter ticket ID: ");
+	scanf("%99s", function_params[1]);
+
+	EXEC SQL SELECT purchase_ticket(:function_params[0], :function_params[1]) INTO :result;
 	verifyOperationSuccess();	
 }
 
@@ -786,6 +790,45 @@ void viewAirportDetails()
 		printf("\n");
 	}
 	EXEC SQL CLOSE airportIndex;
+
+	verifyOperationSuccessAlternative();
+
+}
+
+void viewTickets()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM Tickets where TicketID = :function_int_params[1];
+	
+	EXEC SQL DECLARE ticketIndex2 CURSOR FOR
+		SELECT * FROM Ticket where TicketID = :function_int_params[1];
+	EXEC SQL OPEN ticketIndex2;
+
+	centerText("TicketID", 14);
+	printf("|");
+
+	centerText("Seat number", 14);
+	printf(" |");
+	
+	centerText("Price", 14);
+	printf(" |");
+
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH ticketIndex2 INTO :function_params[19], :function_params[18], :function_params[17], :function_params[16], :function_params[15];
+
+		modifyString(function_params[19], 11);
+		printf(" %11s |", function_params[19]);
+
+		modifyString(function_params[17], 11);
+		printf(" %11s |", function_params[17]);
+		
+		modifyString(function_params[15], 11);
+		printf(" %11s |", function_params[15]);
+
+		printf("\n");
+	}
+	EXEC SQL CLOSE ticketIndex2;
 
 	verifyOperationSuccessAlternative();
 
