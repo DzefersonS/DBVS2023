@@ -797,34 +797,34 @@ void viewAirportDetails()
 
 void viewTickets()
 {
-	EXEC SQL SELECT COUNT(*) INTO :result FROM Tickets where TicketID = :function_int_params[1];
+	EXEC SQL SELECT COUNT(*) INTO :result FROM TicketsForFlight WHERE FlightID = :function_int_params[1];
 	
 	EXEC SQL DECLARE ticketIndex2 CURSOR FOR
-		SELECT * FROM Ticket where TicketID = :function_int_params[1];
+		SELECT * FROM TicketsForFlight WHERE FlightID = :function_int_params[1];
 	EXEC SQL OPEN ticketIndex2;
 
-	centerText("TicketID", 14);
-	printf("|");
+	centerText("TicketID", 12);
+	printf(" |");
 
 	centerText("Seat number", 14);
 	printf(" |");
 	
 	centerText("Price", 14);
-	printf(" |");
+	printf("|");
 
 	printf("\n");
 	for(int i = 0; i < result; ++i)
 	{
-		EXEC SQL FETCH ticketIndex2 INTO :function_params[19], :function_params[18], :function_params[17], :function_params[16], :function_params[15];
+		EXEC SQL FETCH ticketIndex2 INTO :function_params[19], :function_params[18], :function_params[17], :function_params[16];
 
 		modifyString(function_params[19], 11);
 		printf(" %11s |", function_params[19]);
 
 		modifyString(function_params[17], 11);
-		printf(" %11s |", function_params[17]);
+		printf(" %12s |", function_params[17]);
 		
-		modifyString(function_params[15], 11);
-		printf(" %11s |", function_params[15]);
+		modifyString(function_params[16], 11);
+		printf(" %11s |", function_params[16]);
 
 		printf("\n");
 	}

@@ -48,6 +48,16 @@ SELECT
 FROM Person p
 JOIN Passenger ps ON p.PersonID = ps.PersonID;
 
+create view TicketsForFlight AS
+SELECT
+    t.TicketID,
+    t.FlightID,
+    t.SeatID,
+    a.TicketPrice
+FROM Ticket t
+JOIN Flight f ON t.FlightID = f.FlightID
+JOIN Airplane a on f.AirplaneID = a.AirplaneID;
+
 create VIEW TicketDetails AS
 SELECT
     t.TicketID,
