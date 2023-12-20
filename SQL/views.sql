@@ -10,7 +10,6 @@ FROM Person p
 JOIN Passenger ps ON p.PersonID = ps.PersonID
 WHERE ps.IsBanned = true;
 
-
 CREATE VIEW EmployeeDetails AS
 SELECT p.PersonID, p.FirstName, p.LastName, p.DateOfBirthDay, p.PhoneNumber, p.Email,
        e.Position, e.HireDate
@@ -26,6 +25,14 @@ FROM Route r
 JOIN Airport departure ON r.DepartureAirport = departure.AirportID
 JOIN Airport destination ON r.DestinationAirport = destination.AirportID;
 
+CREATE VIEW PilotDetails AS
+SELECT
+    p.PersonID,
+    p.FirstName,
+    p.LastName,
+    pil.ExpirationDate
+FROM Person p
+JOIN Pilot pil ON p.PersonID = pil.PersonID;
 
 create VIEW PassengerDetails AS
 SELECT

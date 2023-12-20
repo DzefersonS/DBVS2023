@@ -256,9 +256,11 @@ void addNewFlight()
 	printf("Enter airplane ID: ");
 	scanf("%d", &function_int_params[1]);
 
+	viewPilotDetails();
 	printf("Enter pilot ID: ");
 	scanf("%99s", &function_params[2]);
 
+	viewPilotDetails();
 	printf("Enter copilot ID: ");
 	scanf("%99s", &function_params[3]);
 
@@ -614,6 +616,55 @@ void viewRouteDetails()
 
 }
 
+void viewPilotDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM PilotDetails;
+	
+	EXEC SQL DECLARE pilotIndex CURSOR FOR
+		SELECT * FROM PilotDetails;
+	EXEC SQL OPEN pilotIndex;
+
+	centerText("PilotID", 12);
+	printf(" |");
+
+	centerText("First name", 66);
+	printf("|");
+	
+	centerText("Last name", 66);
+	printf("|");
+
+	centerText("License expiration date", 66);
+	printf("|");
+
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH pilotIndex INTO :function_params[19], :function_params[18], :function_params[17], :function_params[16];
+
+		//PilotID
+		modifyString(function_params[19], 11);
+		printf(" %11s |", function_params[19]);
+
+		//FirstName
+		modifyString(function_params[18], 64);
+		printf(" %64s |", function_params[18]);
+		
+		//LastName
+		modifyString(function_params[17], 64);
+		printf(" %64s |", function_params[17]);
+
+		//ExpirationDate
+		modifyString(function_params[16], 64);
+		printf(" %64s |", function_params[16]);
+
+		printf("\n");
+	}
+	EXEC SQL CLOSE pilotIndex;
+
+	verifyOperationSuccessAlternative();
+
+}
+
 void viewTicketDetails()
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM TicketDetails;
@@ -812,6 +863,7 @@ void updateAirport()
 
 void updateRoute()
 {
+	viewRouteDetails();
 	printf("Enter route ID: ");
 	scanf("%d", &function_int_params[0]);
 
