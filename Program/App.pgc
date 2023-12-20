@@ -252,7 +252,7 @@ void addNewFlight()
 	printf("Enter route ID: ");
 	scanf("%d", &function_int_params[0]);
 
-
+	viewAirplaneDetails();
 	printf("Enter airplane ID: ");
 	scanf("%d", &function_int_params[1]);
 
@@ -297,9 +297,11 @@ void addNewAirport()
 
 void addNewRoute()
 {
+	viewAirportDetails();
 	printf("Enter departure airport ID: ");
 	scanf("%d", &function_int_params[0]);
 
+	viewAirportDetails();
 	printf("Enter destination airport ID: ");
 	scanf("%d", &function_int_params[1]);
 
@@ -309,9 +311,11 @@ void addNewRoute()
 
 void purchaseTicket()
 {
+	//TODO
 	printf("Enter person ID: ");
 	scanf("%99s", function_params[0]);
 
+	//TODO
 	printf("Enter ticket ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -616,6 +620,90 @@ void viewRouteDetails()
 
 }
 
+void viewAirplaneDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM Airplane;
+	
+	EXEC SQL DECLARE airplaneIndex CURSOR FOR
+		SELECT * FROM Airplane;
+	EXEC SQL OPEN airplaneIndex;
+
+	centerText("AirplaneID", 14);
+	printf("|");
+
+	centerText("Ticket count", 14);
+	printf(" |");
+	
+	centerText("Ticket price", 14);
+	printf(" |");
+
+	centerText("Registration number", 66);
+	printf(" |");
+
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH airplaneIndex INTO :function_params[19], :function_params[18], :function_params[17], :function_params[16];
+
+		modifyString(function_params[19], 11);
+		printf(" %11s |", function_params[19]);
+
+		modifyString(function_params[18], 11);
+		printf(" %11s |", function_params[18]);
+		
+		modifyString(function_params[17], 11);
+		printf(" %11s |", function_params[17]);
+
+		modifyString(function_params[16], 64);
+		printf(" %64s |", function_params[16]);
+
+		printf("\n");
+	}
+	EXEC SQL CLOSE airplaneIndex;
+
+	verifyOperationSuccessAlternative();
+
+}
+
+void viewAirportDetails()
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM Airport;
+	
+	EXEC SQL DECLARE airportIndex CURSOR FOR
+		SELECT * FROM Airport;
+	EXEC SQL OPEN airportIndex;
+
+	centerText("AirportID", 14);
+	printf("|");
+
+	centerText("Airport name", 66);
+	printf(" |");
+	
+	centerText("City name", 66);
+	printf(" |");
+
+	printf("\n");
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH airportIndex INTO :function_params[19], :function_params[18], :function_params[17];
+
+		modifyString(function_params[19], 11);
+		printf(" %11s |", function_params[19]);
+
+		modifyString(function_params[18], 64);
+		printf(" %64s |", function_params[18]);
+		
+		modifyString(function_params[17], 64);
+		printf(" %64s |", function_params[17]);
+
+		printf("\n");
+	}
+	EXEC SQL CLOSE airportIndex;
+
+	verifyOperationSuccessAlternative();
+
+}
+
 void viewPilotDetails()
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM PilotDetails;
@@ -836,6 +924,7 @@ void repaintUpdateMenuLoop()
 
 void updateAirplane()
 {
+	viewAirplaneDetails();
 	printf("Enter airplane ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -848,6 +937,7 @@ void updateAirplane()
 
 void updateAirport()
 {
+	viewAirportDetails();
 	printf("Enter airport ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -867,9 +957,11 @@ void updateRoute()
 	printf("Enter route ID: ");
 	scanf("%d", &function_int_params[0]);
 
+	viewAirportDetails();
 	printf("Enter new departure airport ID: ");
 	scanf("%d", &function_int_params[1]);
 
+	viewAirportDetails();
 	printf("Enter new destination airport ID: ");
 	scanf("%d", &function_int_params[2]);
 
@@ -912,6 +1004,7 @@ void redrawDeleteMenuLoop()
 
 void banPassenger()
 {
+	//TODO
 	printf("Enter person ID: ");
 	scanf("%99s", function_params[0]);
 
@@ -921,6 +1014,7 @@ void banPassenger()
 
 void cancelFlight()
 {
+	//TODO
 	printf("Enter flight ID: ");
 	scanf("%d", &function_int_params[0]);
 
