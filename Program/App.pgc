@@ -248,7 +248,7 @@ void addNewFlight()
 	printf("Enter arrival time: ");
 	scanf("%99s", function_params[1]);
 
-	viewRouteDetails();
+	viewRouteDetails(false);
 	printf("Enter route ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -321,15 +321,7 @@ void purchaseTicket()
 
 void repaintViewMenuLoop()
 {
-	system("clear");
-	printf("Choose an option:\n");
-	printf("1 - View all passenger details.\n");
-	printf("2 - View all employee details.\n");
-	printf("3 - Show banned passengers.\n");
-	printf("4 - Show flights that have not yet sold out.\n");
-	printf("5 - Show all owned ticket details.\n");
-	printf("0 - Return to main menu.\n");
-
+	repaintViewMenu();
 	for(;;)
 	{
 		if(linux_kbhit())
@@ -353,15 +345,31 @@ void repaintViewMenuLoop()
 				case '5':
 					viewTicketDetails();
 					break;
+				case '6':
+					viewRouteDetails(true);
+					break;
 				case '0':
 					return;
 				default:
 					continue;
 			}
 
-			repaintViewMenuLoop();
+			repaintViewMenu();
 		}
 	}
+}
+
+void repaintViewMenu()
+{
+	system("clear");
+	printf("Choose an option:\n");
+	printf("1 - View all passenger details.\n");
+	printf("2 - View all employee details.\n");
+	printf("3 - Show banned passengers.\n");
+	printf("4 - Show flights that have not yet sold out.\n");
+	printf("5 - Show all owned ticket details.\n");
+	printf("6 - Show all route details.\n");
+	printf("0 - Return to main menu.\n");
 }
 
 void printPassengerTableHeader()
@@ -552,12 +560,15 @@ void viewNotSoldOutFlights()
 
 	centerText("AirplaneID", 12);
 	printf("|");
+
+	centerText("RouteID", 12);
+	printf(" |");
 	
 	printf ("\n");
 
 	for(int i = 0; i < result; ++i)
 	{
-		EXEC SQL FETCH flightNotSoldOutIndex INTO :function_params[0], :function_params[1];
+		EXEC SQL FETCH flightNotSoldOutIndex INTO :function_params[0], :function_params[1], :function_params[2];
 
 		//FlightID
 		modifyString(function_params[0], 10);
@@ -567,6 +578,10 @@ void viewNotSoldOutFlights()
 		modifyString(function_params[1], 10);
 		printf(" %10s |", function_params[1]);
 
+		//RouteID
+		modifyString(function_params[2], 10);
+		printf(" %10s |", function_params[2]);
+
 		printf("\n");
 	}
 
@@ -574,7 +589,7 @@ void viewNotSoldOutFlights()
 	verifyOperationSuccess();
 }
 
-void viewRouteDetails()
+void viewRouteDetails(bool standalone)
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM RouteDetails;
 	
@@ -612,7 +627,10 @@ void viewRouteDetails()
 	}
 	EXEC SQL CLOSE routeIndex;
 
-	verifyOperationSuccessAlternative();
+	if(standalone)
+		verifyOperationSuccess();
+	else
+		verifyOperationSuccessAlternative();
 
 }
 
@@ -799,13 +817,7 @@ void viewTicketDetails()
 
 void repaintUpdateMenuLoop()
 {
-	system("clear");
-	printf("Choose an option:\n");
-	printf("1 - Update an airplane\n");
-	printf("2 - Update an airport\n");
-	printf("3 - Update a route\n");
-	printf("0 - Return to main menu\n");
-
+	repaintUpdateMenu();
 	for(;;)
 	{
 		if(linux_kbhit())
@@ -829,9 +841,19 @@ void repaintUpdateMenuLoop()
 					continue;
 			}
 
-			repaintUpdateMenuLoop();
+			repaintUpdateMenu();
 		}
 	}
+}
+
+void repaintUpdateMenu()
+{
+	system("clear");
+	printf("Choose an option:\n");
+	printf("1 - Update an airplane\n");
+	printf("2 - Update an airport\n");
+	printf("3 - Update a route\n");
+	printf("0 - Return to main menu\n");
 }
 
 void updateAirplane()
@@ -863,7 +885,7 @@ void updateAirport()
 
 void updateRoute()
 {
-	viewRouteDetails();
+	viewRouteDetails(false);
 	printf("Enter route ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -879,13 +901,7 @@ void updateRoute()
 
 void redrawDeleteMenuLoop()
 {
-	system("clear");
-	printf("Choose an option:\n");
-	printf("1 - Ban a passenger\n");
-	printf("2 - Cancel a flight\n");
-	printf("3 - Delete a route\n");
-	printf("0 - Return to main menu\n");
-
+	repaintDeleteMenu();
 	for(;;)
 	{
 		if(linux_kbhit())
@@ -909,9 +925,19 @@ void redrawDeleteMenuLoop()
 					continue;
 			}
 
-			redrawDeleteMenuLoop();
+			repaintDeleteMenu();
 		}
 	}
+}
+
+void repaintDeleteMenu()
+{
+	system("clear");
+	printf("Choose an option:\n");
+	printf("1 - Ban a passenger\n");
+	printf("2 - Cancel a flight\n");
+	printf("3 - Delete a route\n");
+	printf("0 - Return to main menu\n");
 }
 
 void banPassenger()
@@ -934,8 +960,7 @@ void cancelFlight()
 
 void deleteRoute()
 {
-	viewRouteDetails();
-	
+	viewRouteDetails(false);
 	printf("Enter Route ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -948,7 +973,7 @@ void verifyOperationSuccess()
     if(SQLCODE == 0)
 	{
 		EXEC SQL COMMIT;
-		printf("Operation completed! Press any key to continue");
+		printf("Press 0 to continue.");
 		fflush(stdout);
 		waitForKeyPress();
 	}
@@ -956,18 +981,21 @@ void verifyOperationSuccess()
 	{
 		printf("Failed to complete operation!");
 		printError();
-		printf("Press any key to continue");
+		printf("Press 0 to continue.");
 		waitForKeyPress();
 	}
 }
 
 void waitForKeyPress()
 {
-	while(1)
+	for(;;)
 	{
 		if(linux_kbhit())
 		{
-			break;
+			char keyPressed = linux_getch();
+			
+			if(keyPressed == '0')
+				return;
 		}
 	}
 }
