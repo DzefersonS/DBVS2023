@@ -624,17 +624,17 @@ void viewPilotDetails()
 		SELECT * FROM PilotDetails;
 	EXEC SQL OPEN pilotIndex;
 
-	centerText("PilotID", 12);
-	printf(" |");
+	centerText("PilotID", 14);
+	printf("|");
 
 	centerText("First name", 66);
 	printf("|");
 	
 	centerText("Last name", 66);
-	printf("|");
+	printf(" |");
 
 	centerText("License expiration date", 66);
-	printf("|");
+	printf(" |");
 
 	printf("\n");
 	for(int i = 0; i < result; ++i)
