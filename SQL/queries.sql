@@ -292,3 +292,16 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION delete_route(p_RouteID integer) 
+RETURNS void AS $$
+DECLARE
+    flightRecord RECORD;
+BEGIN
+    FOR flightRecord IN SELECT FlightID FROM Flight WHERE RouteID = p_RouteID LOOP
+        PERFORM cancel_flight(flightRecord.FlightID);
+    END LOOP;
+
+    DELETE FROM Route WHERE RouteID = p_RouteID;
+END;
+$$ LANGUAGE plpgsql;

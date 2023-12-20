@@ -883,6 +883,7 @@ void redrawDeleteMenuLoop()
 	printf("Choose an option:\n");
 	printf("1 - Ban a passenger\n");
 	printf("2 - Cancel a flight\n");
+	printf("3 - Delete a route\n");
 	printf("0 - Return to main menu\n");
 
 	for(;;)
@@ -898,6 +899,9 @@ void redrawDeleteMenuLoop()
 					break;
 				case '2':
 					cancelFlight();
+					break;
+				case '3':
+					deleteRoute();
 					break;
 				case '0':
 					return;
@@ -925,6 +929,17 @@ void cancelFlight()
 	scanf("%d", &function_int_params[0]);
 
 	EXEC SQL SELECT cancel_flight(:function_int_params[0]) INTO :result;
+	verifyOperationSuccess();
+}
+
+void deleteRoute()
+{
+	viewRouteDetails();
+	
+	printf("Enter Route ID: ");
+	scanf("%d", &function_int_params[0]);
+
+	EXEC SQL SELECT delete_route(:function_int_params[0]) INTO :result;
 	verifyOperationSuccess();
 }
 
