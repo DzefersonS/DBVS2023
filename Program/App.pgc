@@ -311,11 +311,11 @@ void addNewRoute()
 
 void purchaseTicket()
 {
-	//TODO
+	viewPassengerDetails(false);
 	printf("Enter person ID: ");
 	scanf("%99s", function_params[0]);
 
-	//TODO
+	//todo
 	printf("Enter ticket ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -335,7 +335,7 @@ void repaintViewMenuLoop()
 			switch(keyPressed)
 			{
 				case '1':
-					viewPassengerDetails();
+					viewPassengerDetails(true);
 					break;
 				case '2':
 					viewEmployeeDetails();
@@ -347,7 +347,7 @@ void repaintViewMenuLoop()
 					viewNotSoldOutFlights();
 					break;
 				case '5':
-					viewTicketDetails();
+					viewTicketDetails(true);
 					break;
 				case '6':
 					viewRouteDetails(true);
@@ -441,7 +441,7 @@ void printPassengerTableDetails()
 	printf("\n");
 }
 
-void viewPassengerDetails()
+void viewPassengerDetails(bool standalone)
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM Passenger;
 
@@ -458,7 +458,10 @@ void viewPassengerDetails()
 	}
 	EXEC SQL CLOSE passengerIndex;
 
-	verifyOperationSuccess();
+	if(standalone)
+		verifyOperationSuccess();
+	else
+		verifyOperationSuccessAlternative();
 }
 
 void viewBannedPassengerDetails()
@@ -591,6 +594,52 @@ void viewNotSoldOutFlights()
 
 	EXEC SQL CLOSE flightNotSoldOutIndex;
 	verifyOperationSuccess();
+}
+
+void viewFlights(bool standalone)
+{
+	EXEC SQL SELECT COUNT(*) INTO :result FROM flight;
+
+	EXEC SQL DECLARE flightIndex CURSOR FOR
+		SELECT * FROM flight;
+	EXEC SQL OPEN flightIndex;
+
+	centerText("FlightID", 12);
+	printf("|");
+
+	centerText("AirplaneID", 12);
+	printf("|");
+
+	centerText("RouteID", 12);
+	printf(" |");
+	
+	printf ("\n");
+
+	for(int i = 0; i < result; ++i)
+	{
+		EXEC SQL FETCH flightIndex INTO :function_params[0], :function_params[1], :function_params[2];
+
+		//FlightID
+		modifyString(function_params[0], 10);
+		printf(" %10s |", function_params[0]);
+		
+		//AirplaneID
+		modifyString(function_params[1], 10);
+		printf(" %10s |", function_params[1]);
+
+		//RouteID
+		modifyString(function_params[2], 10);
+		printf(" %10s |", function_params[2]);
+
+		printf("\n");
+	}
+
+	EXEC SQL CLOSE flightIndex;
+
+	if(standalone)
+		verifyOperationSuccess();
+	else
+		verifyOperationSuccessAlternative();
 }
 
 void viewRouteDetails(bool standalone)
@@ -771,7 +820,7 @@ void viewPilotDetails()
 
 }
 
-void viewTicketDetails()
+void viewTicketDetails(bool standalone)
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM TicketDetails;
 
@@ -900,7 +949,11 @@ void viewTicketDetails()
 	}
 
 	EXEC SQL CLOSE ticketIndex;
-	verifyOperationSuccess();
+	
+	if(standalone)
+		verifyOperationSuccess();
+	else
+		verifyOperationSuccessAlternative();
 }
 
 void repaintUpdateMenuLoop()
@@ -1034,7 +1087,7 @@ void repaintDeleteMenu()
 
 void banPassenger()
 {
-	//TODO
+	viewPassengerDetails(false);
 	printf("Enter person ID: ");
 	scanf("%99s", function_params[0]);
 
@@ -1044,7 +1097,8 @@ void banPassenger()
 
 void cancelFlight()
 {
-	//TODO
+	viewFlights(false);
+
 	printf("Enter flight ID: ");
 	scanf("%d", &function_int_params[0]);
 
@@ -1067,13 +1121,13 @@ void verifyOperationSuccess()
     if(SQLCODE == 0)
 	{
 		EXEC SQL COMMIT;
-		printf("Press 0 to continue.");
+		printf("Operation completed! Press 0 to continue.");
 		fflush(stdout);
 		waitForKeyPress();
 	}
 	else
 	{
-		printf("Failed to complete operation!");
+		printf("Failed to complete operation!\n");
 		printError();
 		printf("Press 0 to continue.");
 		waitForKeyPress();
