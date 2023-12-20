@@ -258,11 +258,11 @@ void addNewFlight()
 
 	viewPilotDetails();
 	printf("Enter pilot ID: ");
-	scanf("%99s", &function_params[2]);
+	scanf("%99s", function_params[2]);
 
 	viewPilotDetails();
 	printf("Enter copilot ID: ");
-	scanf("%99s", &function_params[3]);
+	scanf("%99s", function_params[3]);
 
 	EXEC SQL SELECT create_flight(:function_params[0], :function_params[1], :function_int_params[0], :function_int_params[1], :function_params[2], :function_params[3]) INTO :result;
 	verifyOperationSuccess();
@@ -582,14 +582,14 @@ void viewRouteDetails()
 		SELECT * FROM RouteDetails;
 	EXEC SQL OPEN routeIndex;
 
-	centerText("RouteID", 12);
-	printf(" |");
+	centerText("RouteID", 14);
+	printf("|");
 
 	centerText("Departure airport", 66);
-	printf("|");
+	printf(" |");
 	
 	centerText("Destination Airport", 66);
-	printf("|");
+	printf(" |");
 
 	printf("\n");
 	for(int i = 0; i < result; ++i)
@@ -597,16 +597,16 @@ void viewRouteDetails()
 		EXEC SQL FETCH routeIndex INTO :function_params[19], :function_params[18], :function_params[17];
 
 		//RouteID
-		modifyString(function_params[0], 11);
+		modifyString(function_params[19], 11);
 		printf(" %11s |", function_params[19]);
 
 		//ArrivalAirport
-		modifyString(function_params[1], 64);
-		printf(" %32s |", function_params[18]);
+		modifyString(function_params[18], 64);
+		printf(" %64s |", function_params[18]);
 		
 		//DestinationAirport
-		modifyString(function_params[2], 64);
-		printf(" %32s |", function_params[17]);
+		modifyString(function_params[17], 64);
+		printf(" %64s |", function_params[17]);
 
 		printf("\n");
 	}
