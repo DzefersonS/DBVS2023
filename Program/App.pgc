@@ -596,7 +596,7 @@ void viewNotSoldOutFlights()
 	verifyOperationSuccess();
 }
 
-void viewFlights(bool standalone)
+void viewFlights(bool standalone, bool showDates)
 {
 	EXEC SQL SELECT COUNT(*) INTO :result FROM flight;
 
@@ -606,6 +606,15 @@ void viewFlights(bool standalone)
 
 	centerText("FlightID", 12);
 	printf("|");
+
+	if(showDates)
+	{
+		centerText("DepartureTime", 34);
+		printf("|");
+
+		centerText("ArrivalTime", 34);
+		printf("|");
+	}
 
 	centerText("AirplaneID", 12);
 	printf("|");
@@ -617,19 +626,30 @@ void viewFlights(bool standalone)
 
 	for(int i = 0; i < result; ++i)
 	{
-		EXEC SQL FETCH flightIndex INTO :function_params[0], :function_params[1], :function_params[2];
+		EXEC SQL FETCH flightIndex INTO :function_params[0], :function_params[1], :function_params[2], :function_params[3], :function_params[4];
 
 		//FlightID
 		modifyString(function_params[0], 10);
 		printf(" %10s |", function_params[0]);
 		
+		if(showDates)
+		{		
+			//DepartureTime
+			modifyString(function_params[1], 31);
+			printf(" %31s |", function_params[1]);
+			
+			//ArrivalTime
+			modifyString(function_params[2], 31);
+			printf(" %31s |", function_params[2]);
+		}
+
 		//AirplaneID
-		modifyString(function_params[1], 10);
-		printf(" %10s |", function_params[1]);
+		modifyString(function_params[3], 10);
+		printf(" %10s |", function_params[3]);
 
 		//RouteID
-		modifyString(function_params[2], 10);
-		printf(" %10s |", function_params[2]);
+		modifyString(function_params[4], 10);
+		printf(" %10s |", function_params[4]);
 
 		printf("\n");
 	}
@@ -1097,7 +1117,7 @@ void banPassenger()
 
 void cancelFlight()
 {
-	viewFlights(false);
+	viewFlights(false, true);
 
 	printf("Enter flight ID: ");
 	scanf("%d", &function_int_params[0]);
